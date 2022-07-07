@@ -42,14 +42,19 @@ s₃ = [0 0 -1;
 
 
 P = legendrep
+Q = Array{Matrix{Float64}}(undef, 10)
+
+
 ℙ₂ = (n,x,y) -> [P(n-k,x)P(k,y) for k=0:n]
 ℙ = (n,x,y,z) -> vcat([P(n-k,x) .* ℙ₂(k,y,z) for k=0:n]...)
+ℚ = (n, x, y, z) -> Q[n]'*ℙ(n, x, y, z)
 
 x,y,z = 0.1,0.2,0.3
 n = 1; 
 @test ℙ(n,  z, -y,  x) ≈ s₁ * ℙ(n, x, y, z)
 @test ℙ(n, -x, -z, -y) ≈ s₂ * ℙ(n, x, y, z)
 @test ℙ(n, -z, -y, -x) ≈ s₃ * ℙ(n, x, y, z)
+Q[1] = I(3)
 
 # this is already an irrep
 @test multiplicities(Representation([s₁,s₂,s₃]))[Partition([2,1,1])] == 1
@@ -63,5 +68,52 @@ S₃ = sparse([6,5,3,4,2,1], 1:6, [1,1,1,1,1,1])
 @test ℙ(n, -x, -z, -y) ≈ S₂ * ℙ(n, x, y, z)
 @test ℙ(n, -z, -y, -x) ≈ S₃ * ℙ(n, x, y, z)
 
-_,Q = blockdiagonalize(Representation([S₁,S₂,S₃]))
-@test Q'Q ≈ I
+ρ,Q[n] = blockdiagonalize(Representation([S₁,S₂,S₃]))
+@test Q[n]'Q[n] ≈ I
+
+σ₁,σ₂,σ₃ = ρ.generators
+@test ℚ(n,  z, -y,  x) ≈ σ₁*ℚ(n,  x, y, z)
+@test ℚ(n, -x, -z, -y) ≈  σ₂*ℚ(n, x, y, z)
+@test ℚ(n, -z, -y, -x) ≈  σ₃*ℚ(n, x, y, z)
+
+n = 3
+S₁ = sparse([10,9,6,8,5,3,7,4,2,1], 1:10, [1,-1,1,1,-1,1,-1,1,-1,1])
+S₂ = sparse([1,3,2,6,5,4,10,9,8,7], 1:10, -ones(Int,10)) 
+S₃ = sparse([10,9,6,8,5,3,7,4,2,1], 1:10, -ones(Int,10))
+@test ℙ(n,  z, -y,  x) ≈ S₁ * ℙ(n,  x, y, z)
+@test ℙ(n, -x, -z, -y) ≈ S₂ * ℙ(n, x, y, z)
+@test ℙ(n, -z, -y, -x) ≈ S₃ * ℙ(n, x, y, z)
+
+ρ,Q[n] = blockdiagonalize(Representation([S₁,S₂,S₃]))
+@test Q[n]'Q[n] ≈ I
+
+σ₁,σ₂,σ₃ = ρ.generators
+@test ℚ(n,  z, -y,  x) ≈ σ₁*ℚ(n,  x, y, z)
+@test ℚ(n, -x, -z, -y) ≈  σ₂*ℚ(n, x, y, z)
+@test ℚ(n, -z, -y, -x) ≈  σ₃*ℚ(n, x, y, z)
+
+
+
+# we now add in the ℤ₂ symmetry which should be (x,y,z) -> (-x,-y,-z)
+# note this is a reflection + rotation but clearly we can get the basic
+# reflections. E.g. the reflection (x,y,-z) can be produced as
+#
+
+@test -(s₁*s₂*s₃)^2 ≈ Diagonal([1,1,-1])
+
+#
+# The key point is it commutes with the rotations in the same way
+# group products commute.
+# We do a two stage process, first reduce to irreps of S₄. If we have
+# only one copy of an irrep then we have that it is also an irrep of ℤ₂
+
+
+n = 1; 
+ℙ(n,  -x, -y, -z) ≈ -ℙ(n,  -x, -y, -z) # sign rep
+
+
+n = 2
+@test ℚ(n, -x, -y, -z) ≈ ℚ(n, x, y, z)
+
+n = 3
+@test ℚ(n, -x, -y, -z) ≈ -ℚ(n, x, y, z)
