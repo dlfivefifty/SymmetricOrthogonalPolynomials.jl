@@ -5,4 +5,5 @@ version = "0.1.0"
 
 [deps]
 ClassicalOrthogonalPolynomials = "b30e2e7b-c4ee-47da-9d5f-2c5c27239acd"
+MultivariateOrthogonalPolynomials = "4f6956fd-4f93-5457-9149-7bfc4b2ce06d"
 RepresentationTheory = "6b7c1d51-ecee-4149-97a8-50646b514dce"
