@@ -1,4 +1,4 @@
-using MultivariateOrthogonalPolynomials, StaticArrays, Test
+using MultivariateOrthogonalPolynomials, StaticArrays, Test, ClassicalOrthogonalPolynomials
 using ClassicalOrthogonalPolynomials: expand
 
 ρ = θ -> @SMatrix([cos(θ) -sin(θ); sin(θ) cos(θ)])
@@ -8,7 +8,7 @@ function anglevec(𝐱)
     @SMatrix([[x,y]/sqrt(x^2+y^2) [-y,x] /sqrt(x^2+y^2)])
 end
 
-ρ̄ = (𝐱, θ) -> anglevec(ρ(θ)*𝐱) * inv(anglevec(𝐱))
+# ρ̄ = (𝐱, θ) -> anglevec(ρ(θ)*𝐱) * inv(anglevec(𝐱))
 
 ρ̄ = (𝐱, θ) -> ρ(θ)
 
@@ -19,7 +19,7 @@ Z = Zernike()
 
 
 θ = 0.1
-x,y = 0.1,0.2
+𝐱 = SVector(0.1,0.2); x,y = 𝐱
 
 
 
@@ -297,11 +297,23 @@ V = [# d = 0
      (x,y) -> [0 -1; 1 0], # m = 0
      (x,y) -> [1 0; 0 -1], (x,y) -> [0 1; 1 0], # m = 2
 
-     # d = 1
+     # d = 1, n = 5
      (x,y) -> [x y; y -x], (x,y) -> [-y x; x y], # m = 1
      (x,y) -> [x -y; y x], (x,y) -> [y x; -x y], # m = 1
      (x,y) -> [x y; -y x], (x,y) -> [y -x; x y], # m = 1
      (x,y) -> [x -y; -y -x], (x,y) -> [y x; x -y], # m = 3
+
+    # d = 2, n = 13
+    (x,y) -> legendrep(1,2*(x^2+y^2)-1)*V[1](x,y), # m = 0
+    (x,y) -> [x^2-y^2 2x*y; 2x*y y^2-x^2], # m = 0    A(x,y)*V[1](x,y)
+    (x,y) -> legendrep(1,2*(x^2+y^2)-1)*V[2](x,y), # m = 0
+    (x,y) -> [2x*y y^2-x^2; y^2-x^2 -2x*y], # m = 0 .  A(x,y)*V[2](x,y)
+    (x,y) -> legendrep(1,2*(x^2+y^2)-1)*V[3](x,y), (x,y) -> legendrep(1,2*(x^2+y^2)-1)*V[4](x,y), # m = 2
+    (x,y) -> [x^2-y^2 -2x*y; 2x*y x^2-y^2], (x,y) -> [2x*y x^2-y^2; y^2-x^2 2x*y], # m = 2
+     (x,y) ->[2x*y x^2-y^2; x^2-y^2 -2x*y],
+    (x,y) ->[2x*y y^2-x^2; x^2-y^2 2x*y],
+    (x,y) -> [x^2-y^2 -2x*y; -2x*y x^2-y^2],
+    # (x,y) -> V[16](x,y)*V[3](x,y), (x,y) -> V[16](x,y)*V[4](x,y), # m = 2
  ]
 
 # d = 0
@@ -314,6 +326,15 @@ n = 5; @test [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(�
 n = 7; @test [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(𝐱,θ)] ≈ ρ(θ)*[ρ̄(𝐱,θ)V[n](𝐱...),ρ̄(𝐱,θ)V[n+1](𝐱...)]
 n = 9; @test [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(𝐱,θ)] ≈ ρ(θ)*[ρ̄(𝐱,θ)V[n](𝐱...),ρ̄(𝐱,θ)V[n+1](𝐱...)]
 n = 11; @test [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(𝐱,θ)] ≈ ρ(θ)^3*[ρ̄(𝐱,θ)V[n](𝐱...),ρ̄(𝐱,θ)V[n+1](𝐱...)]
+
+# d = 2
+n = 13; @test V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ) ≈ ρ̄(𝐱,θ)V[n](𝐱...)
+n = 14; @test V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ) ≈ ρ̄(𝐱,θ)V[n](𝐱...)
+n = 15; @test V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ) ≈ ρ̄(𝐱,θ)V[n](𝐱...)
+n = 16; @test V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ) ≈ ρ̄(𝐱,θ)V[n](𝐱...)
+n = 17; @test [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(𝐱,θ)] ≈ ρ(θ)^2*[ρ̄(𝐱,θ)V[n](𝐱...),ρ̄(𝐱,θ)V[n+1](𝐱...)]
+n = 19; @test [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(𝐱,θ)] ≈ ρ(θ)^2*[ρ̄(𝐱,θ)V[n](𝐱...),ρ̄(𝐱,θ)V[n+1](𝐱...)]
+n = 21; @test_broken [V[n]((ρ(θ)𝐱)...)ρ̄(𝐱,θ),V[n+1]((ρ(θ)𝐱)...)ρ̄(𝐱,θ)] ≈ ρ(θ)^4*[ρ̄(𝐱,θ)V[n](𝐱...),ρ̄(𝐱,θ)V[n+1](𝐱...)]
 
 # d = 0
 n = 2; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
@@ -329,3 +350,16 @@ n = 9; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y)
 n = 10; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
 n = 11; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
 n = 12; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+
+# d= 2
+n = 13; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 14; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 15; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 16; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 17; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 18; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 19; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 20; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 21; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 22; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+n = 23; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
