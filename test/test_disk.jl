@@ -364,3 +364,17 @@ n = 20; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y
 n = 21; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
 n = 22; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
 n = 23; sum(expand(Zernike(), 𝐱 -> ((x,y) = 𝐱; dot(V[n](x,y), sum(V[k](x,y) for k=1:n-1)))))
+
+
+X = randn(3, 100); for j = 1:size(X,2) X[:,j] = X[:,j]/norm(X[:,j]) end
+
+
+K = zeros(100, 9+15+3)
+for k = 1:size(K,1)
+  x,y,z = X[:,k]
+  K[k,:] = [x,y,z]'*[1 0 0 x y z 0 0 0 0 0 0 x^2 y^2 x*y x*z y*z 0 0 0 0 0 0 0 0 0 0
+                     0 1 0 0 0 0 x y z 0 0 0 0 0 0 0 0 x^2 y^2 x*y x*z y*z 0 0 0 0 0
+                      0 0 1 0 0 0 0 0 0 x y z 0 0 0 0 0 0 0 0 0 0 x^2 y^2 x*y x*z y*z]
+end
+
+nullspace(K)
