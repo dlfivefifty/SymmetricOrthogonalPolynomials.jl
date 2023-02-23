@@ -9,6 +9,8 @@ D² = -((D*W)'*(D*W))
 M = W'W
 Δ = KronTrav(D²,M) + KronTrav(M,D²)
 
+M2 = KronTrav(M,M)
+
 K = Block.(1:5)
 Δ[K,K]
 
@@ -37,7 +39,7 @@ K = Block.(1:5)
 #
 #   Degree n:       Diagonal((-1).^(0:n))  I(n+1)[end:-1:1,:]
 
-1𝕎 = (n,x,y) -> [W[x,n-k+1]*W[y,k+1] for k=0:n]
+𝕎 = (n,x,y) -> [W[x,n-k+1]*W[y,k+1] for k=0:n]
 
 x,y = 0.1,0.2
 
@@ -128,6 +130,17 @@ K = Block.(1:7)
 
 Q* Δ[K,K] * Q'
 
+
 # We even get an extra parallelisation because for the faithful the the x and y don't communicate!
 # So we can trivially parallelise onto 6 cores
 
+kr = [1,4,11,12,22,23,
+      2,7,9,16,18,20,
+      3,8,10,17,19,21,
+      5,13,24,25,
+      6,14,26,27,
+      15,28]
+
+(Q* Δ[K,K] * Q')[kr,kr]
+
+(Q* (Δ[K,K] + M2[K,K]) * Q')[kr,kr]
