@@ -1,4 +1,4 @@
-using ClassicalOrthogonalPolynomials, LazyBandedMatrices, LinearAlgebra, BlockArrays, RepresentationTheory, Test
+using ClassicalOrthogonalPolynomials, LazyBandedMatrices, LinearAlgebra, BlockArrays, NumericalRepresentationTheory, Test
 
 
 # The symmetry group of the square is apparently S₄ × ℤ₂. It's irreps
