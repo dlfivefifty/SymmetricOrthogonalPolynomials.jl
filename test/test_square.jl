@@ -1,4 +1,4 @@
-using ClassicalOrthogonalPolynomials, LazyBandedMatrices, LinearAlgebra, BlockArrays, Test
+using ClassicalOrthogonalPolynomials, LazyBandedMatrices, LinearAlgebra, BlockArrays, SymmetricOrthogonalPolynomials, Test
 
 ## Weak Laplacian
 
@@ -145,68 +145,52 @@ kr = [1,4,11,12,22,23,
 
 (Q* (Δ[K,K] + M2[K,K]) * Q')[kr,kr]
 
-
-
-###
-# general case for Q
-n = 6
-
-basisQ(n) = basisQ(Float64, n)
-function basisQ(T, n)
-    Q = zeros(T, n, n)
-    if iseven(n)
-        for k = 1:2:n÷2
-            Q[k,k] = 1
-            Q[k+1,n-k+1] = 1
-        end
-        m = last(1:2:n÷2)+1
-        for k = 1:2:n÷2-1
-            Q[k+m+1,k+1] = 1
-            Q[k+m,n-k] = 1
-        end
-    elseif mod(n,4) == 1
-        for k = 1:n÷4
-            Q[k,2k-1] = Q[k,n-2k+2] = 1/sqrt(T(2))
-        end
-        m = n÷4
-        Q[m+1,n÷2+1] = 1
-        m = n÷4+1
-        for k = 1:n÷4
-            Q[k+m,2k-1] = 1/sqrt(T(2))
-            Q[k+m,n-2k+2] = -1/sqrt(T(2))
-        end
-        m = n÷2+1
-        for k = 1:n÷4
-            Q[k+m,2k] = 1/sqrt(T(2))
-            Q[k+m,n-2k+1] = -1/sqrt(T(2))
-        end
-        m = 3*(n÷4)+1
-        for k = 1:n÷4
-            Q[k+m,2k] = 1/sqrt(T(2))
-            Q[k+m,n-2k+1] = 1/sqrt(T(2))
-        end
-    elseif mod(n,4) == 3
-        for k = 1:n÷4+1
-            Q[k,2k-1] = Q[k,n-2k+2] = 1/sqrt(T(2))
-            m = n÷4+1
-            Q[k+m,2k-1] = 1/sqrt(T(2))
-            Q[k+m,n-2k+2] = -1/sqrt(T(2))
-        end
-        m = n÷2+1
-        for k = 1:n÷4
-            Q[k+m,2k] = 1/sqrt(T(2))
-            Q[k+m,n-2k+1] = -1/sqrt(T(2))
-        end
-        m = 3*(n÷4)+2
-        for k = 1:n÷4
-            Q[k+m,2k] = 1/sqrt(T(2))
-            Q[k+m,n-2k+1] = 1/sqrt(T(2))
-        end
-        Q[end,n÷2+1] = 1
-    end
-    Q
-end
-
 for k = 1:7
-    @test basisQ(k) ≈ Q[Block(k,k)]
+    @test dihedralQ(k) ≈ Q[Block(k,k)]
 end
+
+
+
+f = (x,y) -> cos(6*(y^2-y)*(x-0.2)^2 + sin(4y-0.1)*exp(x))
+
+
+F = f.(x, y')
+
+C = Pl*F
+Q = mortar(Diagonal([dihedralQ(n) for n=1:N]))
+
+c = Q*DiagTrav(C)
+
+@test dihedral_trivialfilter(N) + dihedral_tsfilter(N) + dihedral_stfilter(N) + dihedral_signfilter(N) + dihedral_faithfulfilter1(N) + dihedral_faithfulfilter2(N) == ones(sum(1:N))
+
+Ftrivial = Pl\Matrix(InvDiagTrav(Q'*(dihedral_trivialfilter(N) .* c)))
+Fts = Pl\Matrix(InvDiagTrav(Q'*(dihedral_tsfilter(N) .* c)))
+Fst = Pl\Matrix(InvDiagTrav(Q'*(dihedral_stfilter(N) .* c)))
+Fsign = Pl\Matrix(InvDiagTrav(Q'*(dihedral_signfilter(N) .* c)))
+Ffaithful1 = Pl\Matrix(InvDiagTrav(Q'*(dihedral_faithfulfilter1(N) .* c)))
+Ffaithful2 = Pl\Matrix(InvDiagTrav(Q'*(dihedral_faithfulfilter2(N) .* c)))
+
+
+@test Ftrivial+ Fts+ Fst+ Fsign+ Ffaithful1+ Ffaithful2 ≈ F
+
+
+
+## even/odd
+
+F = f.(x, y')
+
+C = Pl*F
+
+c = DiagTrav(C)
+
+@test reflection_trivialfilter(N) + reflection_tsfilter(N) + reflection_stfilter(N) + reflection_signfilter(N) == ones(sum(1:N))
+
+Ftrivial = Pl\Matrix(InvDiagTrav(reflection_trivialfilter(N) .* c))
+Fts = Pl\Matrix(InvDiagTrav(reflection_tsfilter(N) .* c))
+Fst = Pl\Matrix(InvDiagTrav(reflection_stfilter(N) .* c))
+Fsign = Pl\Matrix(InvDiagTrav(reflection_signfilter(N) .* c))
+
+
+
+@test Ftrivial+ Fts+ Fst+ Fsign  ≈ F
+
