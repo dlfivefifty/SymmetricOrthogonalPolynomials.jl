@@ -120,6 +120,35 @@ using ClassicalOrthogonalPolynomials, LazyBandedMatrices, LinearAlgebra, BlockAr
     @test ℚ(n, -x, -y, -z) ≈ -ℚ(n, x, y, z)
 end
 
+@testset "cube generators" begin
+let  P = Legendre(), N = 30, Pl = plan_transform(P, (N,N,N))
+    𝐱,𝐲,𝐳 = ClassicalOrthogonalPolynomials.grid(P, (N,N,N))
+    function genrep(sym, n)
+        ret = zeros(sum(1:n),sum(1:n))
+        ℓ = 1
+        for k = 1:n, j=1:k
+            𝐏 = (x,y,z) -> P[x,n-k+1] * P[y,k-j+1] * P[z,j]
+            𝐏̃ = (x,y,z) -> 𝐏(sym(x,y,z)...)
+            ret[:,ℓ] = DiagTrav(Pl* 𝐏̃.(𝐱,𝐲',reshape(𝐳,1,1,:)))[Block(n)]
+            ℓ += 1
+        end
+        ret
+    end
+
+    for n = 1:5
+        @test genrep((x,y,z) -> (z,-y,x), n) ≈ cubegen1(n)
+        @test genrep((x,y,z) -> (-x, -z, -y), n) ≈ cubegen2(n)
+        @test genrep((x,y,z) -> (-z, -y, -x), n) ≈ cubegen3(n)
+    end
+end
+
+
+function blockdiagonalizepoly(n)
+    τ1,τ2,τ3 = cubegen1(n), cubegen2(n), cubegen3(n)
+    blockdiagonalize(Representation([τ1,τ2,τ3]))[2]
+end
+
+
 @testset "Expansion" begin
     P = Legendre()
     N = 30
@@ -133,23 +162,6 @@ end
     @test sum(P[y,1:N]' .* C .* P[x,1:N] .* reshape(P[z,1:N],1,1,n)) ≈ f(x,y,z)
     @test KronTrav(P[z,1:N], P[y,1:N], P[x,1:N])' * DiagTrav(C) ≈ f(x,y,z)
 
-
-    function genrep(sym, n)
-        ret = zeros(sum(1:n),sum(1:n))
-        ℓ = 1
-        for k = 1:n, j=1:k
-            𝐏 = (x,y,z) -> P[x,n-k+1] * P[y,k-j+1] * P[z,j]
-            𝐏̃ = (x,y,z) -> 𝐏(sym(x,y,z)...)
-        ret[:,ℓ] = DiagTrav(Pl* 𝐏̃.(𝐱,𝐲',reshape(𝐳,1,1,:)))[Block(n)]
-        ℓ += 1
-        end
-        ret
-    end
-
-    function blockdiagonalizepoly(n)
-        τ1,τ2,τ3 = genrep((x,y,z) -> (z,-y,x), n), genrep((x,y,z) -> (-x, -z, -y), n), genrep((x,y,z) -> (-z, -y, -x), n)
-        blockdiagonalize(Representation([τ1,τ2,τ3]))[2]
-    end
 
     n = 3
     Q = blockdiagonalizepoly(n)
@@ -195,3 +207,4 @@ end
     spy(round.(A;digits=7))
     spy(round.(Matrix(Q'*A*Q);digits=7))
 end
+
