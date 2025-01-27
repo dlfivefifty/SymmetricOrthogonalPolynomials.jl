@@ -36,9 +36,13 @@ function getindex(Q::DihedralInvariantPolynomial, 𝐱::SVector{2}, Kk::BlockInd
     K,k = block(Kk), blockindex(Kk)
     ℓ = 2*(Int(K)-1)
     μ = 2*(k-1)
-    legendrep(ℓ,x)legendrep(μ,y)+legendrep(μ,x)legendrep(ℓ,y)
+    (legendrep(ℓ,x)legendrep(μ,y)+legendrep(μ,x)legendrep(ℓ,y))/2
 end
 
 getindex(Q::DihedralInvariantPolynomial, 𝐱::SVector{2}, k::Int) = Q[𝐱,findblockindex(axes(Q,2),k)]
 
 Q = DihedralInvariantPolynomial()
+x,y = 0.1,0.2
+for K = Block.(1:10)
+    @test Q[SVector(x,y),K] == Q[SVector(y,x),K] == Q[SVector(x,-y),K]
+end
