@@ -58,7 +58,7 @@ using SymmetricOrthogonalPolynomials: dihedralconversion
         M₁ = grammatrix(W)
 
         @test M₁[1,1]^2 ≈ M[1,1]
-        @test 2M₁[1,1]M₁[1,3]/sqrt(2) ≈ M[1,2]
+        @test 2M₁[1,1]D[1,3]/sqrt(2) ≈ M[1,2]
         @test 0 ≈ M[1,3]
         @test M₁[1,3]^2 ≈ M[1,4]
 
@@ -68,10 +68,13 @@ using SymmetricOrthogonalPolynomials: dihedralconversion
 
 
         Δ = R * weaklaplacian(W²)[Block.(1:2:2N), Block.(1:2:2N)] * R'
-
         D = weaklaplacian(W)
 
-        @test 2M₁[1,1]*D[1,1] ≈ Δ[1,1]
-        @test 2M₁[1,3]*D[1,1]/sqrt(2) ≈ Δ[1,2]
+        @test 2M₁[1,1]D[1,1] ≈ Δ[1,1]
+        @test  D[1,1]M₁[1,3]*sqrt(2) ≈ Δ[1,2]
+
+        @test (M₁[3,3]D[1,1] + M₁[1,1]D[3,3]) ≈ Δ[2,2]
+        @test M₁[3,5]D[1,1] ≈ Δ[2,3]
+        @test 2/sqrt(2) * M₁[1,3]D[3,3] ≈ Δ[2,4]
     end
 end
