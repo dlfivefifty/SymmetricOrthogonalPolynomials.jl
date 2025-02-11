@@ -1,8 +1,9 @@
 module SymmetricOrthogonalPolynomials
 using BlockArrays, NumericalRepresentationTheory
-using MultivariateOrthogonalPolynomials, InfiniteArrays, LazyArrays, DomainSets, StaticArrays, ClassicalOrthogonalPolynomials, BlockBandedMatrices, QuasiArrays, LinearAlgebra, ArrayLayouts, ContinuumArrays
+using MultivariateOrthogonalPolynomials, InfiniteArrays, LazyArrays, DomainSets, StaticArrays, ClassicalOrthogonalPolynomials, BandedMatrices, BlockBandedMatrices, QuasiArrays, LinearAlgebra, ArrayLayouts, ContinuumArrays
 import ContinuumArrays: Basis, grammatrix, @simplify
-using BlockArrays: block, blockindex
+import BlockArrays: block, blockindex, viewblock
+import BlockBandedMatrices: AbstractBandedBlockBandedMatrix, blockbandwidths, subblockbandwidths
 using MultivariateOrthogonalPolynomials: MultivariateOrthogonalPolynomial, BlockOneTo
 import Base: axes, getindex, size
 
@@ -10,7 +11,7 @@ export dihedralQ, dihedral_signfilter, dihedral_trivialfilter, dihedral_tsfilter
 export reflection_trivialfilter, reflection_signfilter, reflection_tsfilter, reflection_stfilter
 export cuberepresentation, cube_filter
 
-export DihedralInvariant
+export DihedralInvariant, DihedralWeakLaplacian
 
 include("dihedral.jl")
 include("reflection.jl")

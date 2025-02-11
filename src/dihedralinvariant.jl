@@ -84,3 +84,29 @@ function dihedralconversion(N)
     end
     R
 end
+
+struct DihedralWeakLaplacian{T} <: AbstractBandedBlockBandedMatrix{T}
+    D::AbstractMatrix{T} # 1D Weak Laplacian
+    M::AbstractMatrix{T} # 1D Mass Matrix
+end
+
+
+axes(::DihedralWeakLaplacian) = (dihedralaxis(∞),dihedralaxis(∞))
+
+blockbandwidths(::DihedralWeakLaplacian) = (1,1)
+subblockbandwidths(::DihedralWeakLaplacian) = (1,1)
+
+function viewblock(Δ::DihedralWeakLaplacian, KJ::Block{2})
+    D,M = Δ.D,Δ.M
+    K,J = KJ.n
+    m,n = (K+1)÷2, (K+1)÷2
+    if K == J
+        BandedMatrix(0 => [M[2K-2k+1,2K-2k+1]D[2k-1,2k-1] + 2M[2K-2k+1,2k-1]D[2K-2k+1,2k-1] + M[2k-1,2k-1]D[2K-2k+1,2K-2k+1] for k=1:m])
+    elseif J == K+1
+
+    elseif K == J+1
+
+    else
+
+    end
+end
