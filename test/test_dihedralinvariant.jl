@@ -1,5 +1,5 @@
-using SymmetricOrthogonalPolynomials, ClassicalOrthogonalPolynomials, MultivariateOrthogonalPolynomials, BlockArrays, StaticArrays, Test
-using SymmetricOrthogonalPolynomials: dihedralconversion
+using SymmetricOrthogonalPolynomials, ClassicalOrthogonalPolynomials, MultivariateOrthogonalPolynomials, BlockArrays, StaticArrays, Test, BandedMatrices
+using SymmetricOrthogonalPolynomials: dihedralconversion, invdihedralconversion
 
 @testset "DihedralInvariant" begin
     Q = DihedralInvariant(Legendre())
@@ -23,7 +23,11 @@ using SymmetricOrthogonalPolynomials: dihedralconversion
     @testset "mass matrix" begin
         N= 4
         R = dihedralconversion(N)
-        @test R*grammatrix(P²)[Block.(1:2:2N),Block.(1:2:2N)]*R' ≈ grammatrix(Q)[Block.(1:N), Block.(1:N)] ≈ (Q'Q)[Block.(1:N), Block.(1:N)]
+        Ri = invdihedralconversion(N)
+        @test R*Ri ≈ I
+        @test Ri'*grammatrix(P²)[Block.(1:2:2N),Block.(1:2:2N)]*Ri ≈ grammatrix(Q)[Block.(1:N), Block.(1:N)] ≈ (Q'Q)[Block.(1:N), Block.(1:N)]
+        grammatrix(Q).diag[1:5]
+        [sum(Q[:,k].^2) for k=1:5]
     end
 
     @testset "variable coefficient" begin
@@ -31,10 +35,11 @@ using SymmetricOrthogonalPolynomials: dihedralconversion
         Y = jacobimatrix(Val(2), P²)
         N = 20
         R = dihedralconversion(N)
+        Ri = invdihedralconversion(N)
         d = R * c[Block.(1:2:2N)]
-        A = R * (X^2 + Y^2)[Block.(1:2:2N), Block.(1:2:2N)] * R'
-        B = R * (X^2 * Y^2)[Block.(1:2:2N), Block.(1:2:2N)] * R'
-        C = R*((X^2 - Y^2)^2)[Block.(1:2:2N), Block.(1:2:2N)] * R'
+        A = R * (X^2 + Y^2)[Block.(1:2:2N), Block.(1:2:2N)] * Ri
+        B = R * (X^2 * Y^2)[Block.(1:2:2N), Block.(1:2:2N)] * Ri
+        C = R*((X^2 - Y^2)^2)[Block.(1:2:2N), Block.(1:2:2N)] * Ri
 
         @test Q[SVector(x,y),axes(A,1)]'A*d ≈ (x^2 + y^2) * f(x,y)
         @test Q[SVector(x,y),axes(B,1)]'B*d ≈ (x^2 * y^2) * f(x,y)

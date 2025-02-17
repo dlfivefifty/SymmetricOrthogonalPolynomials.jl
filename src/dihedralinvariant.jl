@@ -7,14 +7,14 @@
 # P_2(x) + P_2(y)
 # ----
 # P_4(x) + P_4(y)
-# 2P_2(x) P_2(y)
+# P_2(x) P_2(y)
 # -----
 # P_6(x) + P_6(y)
 # P_4(x)P_2(y) + P_2(x) P_4(y)
 # ----
 # P_8(x) + P_8(y)
 # P_6(x)P_2(y) + P_2(x)P_6(y)
-# 2P_4(x)P_4(y)
+# P_4(x)P_4(y)
 ########
 
 
@@ -36,7 +36,7 @@ function getindex(Q::DihedralInvariant, 𝐱::SVector{2}, Kk::BlockIndex{1})
     K,k = block(Kk), blockindex(Kk)
     ℓ = 2*(Int(K)-k)
     μ = 2*(k-1)
-    (Q.basis[x,ℓ+1]Q.basis[y,μ+1]+Q.basis[x,μ+1]Q.basis[y,ℓ+1])/sqrt(2 + 2*(ℓ == μ)) # scaling is to ensure unitary change-of-basis
+    (Q.basis[x,ℓ+1]Q.basis[y,μ+1]+Q.basis[x,μ+1]Q.basis[y,ℓ+1])/(1 + (ℓ == μ)) # scaling is to ensure unitary change-of-basis
 end
 
 getindex(Q::DihedralInvariant, 𝐱::SVector{2}, k::Int) = Q[𝐱,findblockindex(axes(Q,2),k)]
@@ -50,7 +50,7 @@ end
 
 axes(::DihedralKronVector) = (dihedralaxis(∞),)
 size(::DihedralKronVector) = (ℵ₀,)
-
+copy(D::DihedralKronVector) = D # immutable
 
 function getindex(D::DihedralKronVector, K::Block{1})
     K̃ = Int(K)
@@ -78,12 +78,24 @@ function dihedralconversion(N)
     R = BlockBandedMatrix{Float64}(undef, (dihedralaxis(N), BlockedOneTo(cumsum(1:2:2N))), (0,0)); fill!(R, 0)
     for K = 1:N
         for k = 1:(K÷2)
-            R[Block(K,K)[k,2k-1]] = R[Block(K,K)[k,2K-2k+1]] = 1/sqrt(2)
+            R[Block(K,K)[k,2k-1]] = R[Block(K,K)[k,2K-2k+1]] = 1/2
         end
         isodd(K) && (R[Block(K,K)[K÷2+1,K]] = 1)
     end
     R
 end
+
+function invdihedralconversion(N)
+    R = BlockBandedMatrix{Float64}(undef, (BlockedOneTo(cumsum(1:2:2N)), dihedralaxis(N)), (0,0)); fill!(R, 0)
+    for K = 1:N
+        for k = 1:(K÷2)
+            R[Block(K,K)[2k-1,k]] = R[Block(K,K)[2K-2k+1,k]] = 1
+        end
+        isodd(K) && (R[Block(K,K)[K,K÷2+1]] = 1)
+    end
+    R
+end
+
 
 struct DihedralWeakLaplacian{T} <: AbstractBandedBlockBandedMatrix{T}
     D::AbstractMatrix{T} # 1D Weak Laplacian
