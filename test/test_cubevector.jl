@@ -28,9 +28,7 @@ s₃ = [0 0 -1;
 0 -1 0;
 -1 0 0]
 
-N = 5
-Qs = Array{Matrix{Float64}}(undef, N)
-for n = 1:N
+for n = 1:10
     ρ = cubevectorrepresentation(n)
     S₁,S₂,S₃ = ρ.generators
 
@@ -43,7 +41,14 @@ for n = 1:N
     @test S₁^2 == S₂^2 == S₃^2 == I
     @test S₁*S₃ == S₃*S₁
     @test (S₁*S₂)^3 == (S₂*S₃)^3 == I
-    _,Qs[n] = blockdiagonalize(ρ)
+end
+
+
+N = 10
+Qs = Array{Matrix{Float64}}(undef, N)
+for n = 1:N
+    @show n
+    _,Qs[n] = blockdiagonalize(cubevectorrepresentation(n))
 end
 
 
@@ -142,10 +147,6 @@ for s in (true,false), p in partitions(4)
     end
 end
 
-Σ'Q
-
-
-
 sparse(round.(Q'*Σ*L*Σ'Q;digits=3)[inds,inds])
 
 M³ = sparse(KronTrav(M,M,M))
@@ -153,3 +154,14 @@ sparse(round.(Q'*Σ*blockdiag(M³,M³,M³)*Σ'Q;digits=3))
 
 
 BlockArray(round.(Q'*Σ*L*Σ'Q;digits=3), size.(Qs,1), size.(Qs,2))[Block(2,2)]
+
+
+inds_t1 = findall(cubevector_filter((Partition(4), true), N))
+
+
+L_p = Q'*Σ*L*Σ'Q
+M_p = Q'*Σ*blockdiag(M³,M³,M³)*Σ'Q
+
+eigen(L_p[inds_t1,inds_t1], M_p[inds_t1,inds_t1])
+
+eigvals(Symmetric(Matrix(L)), Symmetric(Matrix(blockdiag(M³,M³,M³))))
