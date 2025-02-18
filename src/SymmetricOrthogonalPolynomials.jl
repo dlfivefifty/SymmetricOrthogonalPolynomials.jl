@@ -17,6 +17,9 @@ include("dihedral.jl")
 include("reflection.jl")
 include("cube.jl")
 
+include("cubevector.jl")
+
 include("dihedralinvariant.jl")
+
 
 end # module
