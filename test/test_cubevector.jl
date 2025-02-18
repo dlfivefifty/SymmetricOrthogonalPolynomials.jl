@@ -159,9 +159,18 @@ BlockArray(round.(Q'*Σ*L*Σ'Q;digits=3), size.(Qs,1), size.(Qs,2))[Block(2,2)]
 inds_t1 = findall(cubevector_filter((Partition(4), true), N))
 
 
-L_p = Q'*Σ*L*Σ'Q
-M_p = Q'*Σ*blockdiag(M³,M³,M³)*Σ'Q
+L_p = (Q'*Σ*L*Σ'Q)[inds,inds]
+M_p = (Q'*Σ*blockdiag(M³,M³,M³)*Σ'Q)[inds,inds]
+
+sparse(round.(L_p+M_p;digits=3))[4:22,4:22] |> Matrix
+
+
+eigen(L_p[4:22,4:22],M_p[4:22,4:22])
 
 eigen(L_p[inds_t1,inds_t1], M_p[inds_t1,inds_t1])
 
 eigvals(Symmetric(Matrix(L)), Symmetric(Matrix(blockdiag(M³,M³,M³))))
+
+
+findall(≠(0),round.((L_p + M_p)[4,:];digits=3))
+
