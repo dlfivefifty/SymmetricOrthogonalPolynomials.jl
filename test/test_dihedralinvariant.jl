@@ -58,7 +58,7 @@ using SymmetricOrthogonalPolynomials: dihedralconversion
         M₁ = grammatrix(W)
 
         @test M₁[1,1]^2 ≈ M[1,1]
-        @test 2M₁[1,1]D[1,3]/sqrt(2) ≈ M[1,2]
+        @test 2M₁[1,1]M₁[1,3]/sqrt(2) ≈ M[1,2]
         @test 0 ≈ M[1,3]
         @test M₁[1,3]^2 ≈ M[1,4]
 
@@ -145,8 +145,6 @@ using SymmetricOrthogonalPolynomials: dihedralconversion
                 end
             end
         end
-
-        
 
 
         # (2k,2j) = (6,0)
