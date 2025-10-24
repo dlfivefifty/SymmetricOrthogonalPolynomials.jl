@@ -11,7 +11,7 @@ export dihedralQ, dihedral_signfilter, dihedral_trivialfilter, dihedral_tsfilter
 export reflection_trivialfilter, reflection_signfilter, reflection_tsfilter, reflection_stfilter
 export cuberepresentation, cube_filter
 
-export DihedralInvariant, DihedralWeakLaplacian
+export DihedralInvariant, DihedralWeakLaplacian, PermutationInvariant
 
 include("dihedral.jl")
 include("reflection.jl")
@@ -20,6 +20,7 @@ include("cube.jl")
 include("cubevector.jl")
 
 include("dihedralinvariant.jl")
+include("permutationinvariant.jl")
 
 
 end # module
