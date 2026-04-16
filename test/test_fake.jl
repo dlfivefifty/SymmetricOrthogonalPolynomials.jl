@@ -1,5 +1,21 @@
 using DynamicPolynomials, NumericalRepresentationTheory, Permutations
 
+function coeff_matrix(polys, monos)
+    m = length(polys)
+    n = length(monos)
+    C = zeros(Float64, n, m)
+    for (i, p) in enumerate(polys)
+        # build a Dict: monomial => coefficient for fast lookup
+        d = Dict(zip(monomials(p), coefficients(p)))
+        for (j, mono) in enumerate(monos)
+            C[j, i] = get(d, mono, 0.0)
+        end
+    end
+    return C
+end
+
+
+
 function polypermgen(n, p)
     @polyvar x[1:n] monomial_order = Graded{DynamicPolynomials.Reverse{LexOrder}}
 
@@ -204,25 +220,44 @@ c = Permutation([Vector(1:n)])
 ρₚ₁ = polypermgen(n, 1)
 ρₚ₂ = polypermgen(n, 2)
 ρₚ₃ = polypermgen(n, 3)
+ρₚ₄ = polypermgen(n, 4)
+ρₚ₅ = polypermgen(n, 5)
 @test all(subs(x, x[1] => x[2], x[2] => x[1]) .≈ ρₚ₁(τ₁) * x)
 @test all(subs(x,  ([x[2:n]; x[1]] .=> x)...) .≈ ρₚ₁(c) * x)
-
-
-
-f₄ = 1
-f₃₊₁ = [(x[1]-x[2])/sqrt(2), (x[1]+x[2])/sqrt(6)-2x[3]/sqrt(6), (x[1]+x[2]+x[3])/sqrt(12)-sqrt(3)/2 * x[4]]
-f₃₊₁₂ = [(x[1]^2-x[2]^2)/sqrt(2), (x[1]^2+x[2]^2)/sqrt(6)-2x[3]^2/sqrt(6), (x[1]^2+x[2]^2+x[3]^2)/sqrt(12)-sqrt(3)/2 * x[4]^2]
-f₃₊₁₃ = [(x[1]^3-x[2]^3)/sqrt(2), (x[1]^3+x[2]^3)/sqrt(6)-2x[3]^3/sqrt(6), (x[1]^3+x[2]^3+x[3]^3)/sqrt(12)-sqrt(3)/2 * x[4]^3]
-f₂₊₂ =  [(x[1]x[3]-x[1]x[4]-x[2]x[3]+x[2]x[4])/2, (x[1]x[2]+x[3]x[4])/sqrt(3) - (x[1]x[3]+x[1]x[4]+x[2]x[3]+x[2]x[4])/sqrt(12)]
-
-
-
-@test all(f₃₊₁ .≈ blockdiagonalize(ρₚ₁)[2][:,1:3]'x)
-@test all(f₂₊₂ .≈ blockdiagonalize(ρₚ₂)[2][:,1:2]'monomials(x, 2))
 
 ρₜ = Representation(4)
 ρ₃₊₁ = Representation(3,1)
 ρ₂₊₂ = Representation(2,2)
+ρ₂₊₁₊₁ = Representation(2,1,1)
+
+
+
+f₄ = 1
+f₄₂ = x[1]x[2]x[3]x[4]
+f₃₊₁ = [(x[1]-x[2])/sqrt(2), (x[1]+x[2])/sqrt(6)-2x[3]/sqrt(6), (x[1]+x[2]+x[3])/sqrt(12)-sqrt(3)/2 * x[4]]
+f₃₊₁₂ = [(x[1]^2-x[2]^2)/sqrt(2), (x[1]^2+x[2]^2)/sqrt(6)-2x[3]^2/sqrt(6), (x[1]^2+x[2]^2+x[3]^2)/sqrt(12)-sqrt(3)/2 * x[4]^2]
+f₃₊₁₃ = [(x[1]^3-x[2]^3)/sqrt(2), (x[1]^3+x[2]^3)/sqrt(6)-2x[3]^3/sqrt(6), (x[1]^3+x[2]^3+x[3]^3)/sqrt(12)-sqrt(3)/2 * x[4]^3]
+f₃₊₁₄ = [(x[1]^5-x[2]^5)/sqrt(2), (x[1]^5+x[2]^5)/sqrt(6)-2x[3]^5/sqrt(6), (x[1]^5+x[2]^5+x[3]^5)/sqrt(12)-sqrt(3)/2 * x[4]^5]
+f₂₊₂ =  [(x[1]x[3]-x[1]x[4]-x[2]x[3]+x[2]x[4])/2, (x[1]x[2]+x[3]x[4])/sqrt(3) - (x[1]x[3]+x[1]x[4]+x[2]x[3]+x[2]x[4])/sqrt(12)]
+f₂₊₂₂ =  [(x[1]^2*x[3]^2-x[1]^2*x[4]^2-x[2]^2*x[3]^2+x[2]^2*x[4]^2)/2, (x[1]^2*x[2]^2+x[3]^2*x[4]^2)/sqrt(3) - (x[1]^2*x[3]^2+x[1]^2*x[4]^2+x[2]^2*x[3]^2+x[2]^2*x[4]^2)/sqrt(12)]
+f₂₊₁₊₁ = [(x[1]^2*x[2]-x[1]^2*x[3]-x[1]x[2]^2+x[1]x[3]^2+x[2]^2*x[3]-x[2]x[3]^2)/sqrt(6), 
+          (2x[1]^2*x[2]+x[1]^2*x[3]-3x[1]^2*x[4]-2x[1]x[2]^2-x[1]x[3]^2+3x[1]x[4]^2-x[2]^2*x[3]+3x[2]^2*x[4]+x[2]x[3]^2-3x[2]x[4]^2)/sqrt(48),
+          (x[1]^2*x[3]-x[1]^2*x[4]-x[1]x[3]^2+x[1]x[4]^2+x[2]^2*x[3]-x[2]^2*x[4]-x[2]x[3]^2+x[2]x[4]^2+2x[3]^2*x[4]-2x[3]x[4]^2)/4]
+f₂₊₁₊₁₂ = [x[1]^2*x[2]x[4]-x[1]^2*x[3]x[4]-x[1]x[2]^2*x[4]+x[1]x[3]^2*x[4]+x[2]^2*x[3]x[4]-x[2]x[3]^2*x[4],
+            (3x[1]^2*x[2]x[3]-x[1]^2*x[2]x[4]-2x[1]^2*x[3]x[4]-3x[1]x[2]^2*x[3]+x[1]x[2]^2*x[4]-x[1]x[3]^2*x[4]+3x[1]x[3]x[4]^2+2x[2]^2*x[3]x[4]+x[2]x[3]^2*x[4]-3x[2]x[3]x[4]^2)/sqrt(8),
+            (x[1]^2*x[2]x[3]-x[1]^2*x[2]x[4]+x[1]x[2]^2*x[3]-x[1]x[2]^2*x[4]-2x[1]x[2]x[3]^2+2x[1]x[2]x[4]^2+x[1]x[3]^2*x[4]-x[1]x[3]x[4]^2+x[2]x[3]^2*x[4]-x[2]x[3]x[4]^2)/sqrt(8/3)
+            ]
+
+
+@test all(f₃₊₁ .≈ blockdiagonalize(ρₚ₁)[2][:,1:3]'x)
+@test all(f₂₊₂ .≈ blockdiagonalize(ρₚ₂)[2][:,1:2]'monomials(x, 2))
+@test all(f₂₊₁₊₁ .≈ blockdiagonalize(ρₚ₃)[2][:,1:3]'monomials(x, 3))
+
+
+A = (blockdiagonalize(ρₚ₄)[2][:,1:3] - blockdiagonalize(ρₚ₄)[2][:,1:3][2]/coeff_matrix((x[1]+x[2]+x[3]+x[4])*f₂₊₁₊₁, monomials(x,4))[2] * coeff_matrix((x[1]+x[2]+x[3]+x[4])*f₂₊₁₊₁, monomials(x,4)))
+B = A/A[7]
+@test B ≈ coeff_matrix(f₂₊₁₊₁₂, monomials(x,4))
+
 
 @test all(subs(f₄, x[1] => x[2], x[2] => x[1]) .≈ ρₜ(τ₁) * f₄)
 @test all(subs(f₄,  ([x[2:n]; x[1]] .=> x)...) .≈ ρₜ(c) * f₄)
@@ -233,6 +268,11 @@ f₂₊₂ =  [(x[1]x[3]-x[1]x[4]-x[2]x[3]+x[2]x[4])/2, (x[1]x[2]+x[3]x[4])/sqrt
 @test all(subs(f₃₊₁₂,  ([x[2:n]; x[1]] .=> x)...) .≈ ρ₃₊₁(c) * f₃₊₁₂)
 @test all(subs(f₂₊₂, x[1] => x[2], x[2] => x[1]) .≈ ρ₂₊₂(τ₁) * f₂₊₂)
 @test all(subs(f₂₊₂,  ([x[2:n]; x[1]] .=> x)...) .≈ ρ₂₊₂(c) * f₂₊₂)
+@test all(subs(f₂₊₁₊₁, x[1] => x[2], x[2] => x[1]) .≈ ρ₂₊₁₊₁(τ₁) * f₂₊₁₊₁)
+@test all(broadcast((a,b) -> ≈(a,b;atol=1E-12), subs(f₂₊₁₊₁, ([x[2:n]; x[1]] .=> x)...), ρ₂₊₁₊₁(c) * f₂₊₁₊₁))
+@test all(subs(f₂₊₁₊₁₂, x[1] => x[2], x[2] => x[1]) .≈ ρ₂₊₁₊₁(τ₁) * f₂₊₁₊₁₂)
+@test all(broadcast((a,b) -> ≈(a,b;atol=1E-12), subs(f₂₊₁₊₁₂, ([x[2:n]; x[1]] .=> x)...), ρ₂₊₁₊₁(c) * f₂₊₁₊₁₂))
+
 
 # p = 0
 f₄
@@ -244,21 +284,70 @@ f₃₊₁
 ]) == 4
 
 # p = 2
-@test length([
+@test rank(coeff_matrix([
 (x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₄;
 (x[1]+x[2]+x[3]+x[4])^2*f₄;
 (x[1] + x[2] + x[3] + x[4])*f₃₊₁;
 f₃₊₁₂;
 f₂₊₂
-]) == size(ρₚ₂,1)
+], monomials(x,2))) == size(ρₚ₂,1)
 
 # p = 3
-@test length([
+@test rank(coeff_matrix([
 (x[1]^3 + x[2]^3 + x[3]^3 + x[4]^3)*f₄;
 (x[1]+x[2]+x[3]+x[4])*(x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₄;
 (x[1]+x[2]+x[3]+x[4])^3*f₄;
 (x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₃₊₁;
 (x[1]+x[2]+x[3]+x[4])^2*f₃₊₁;
 (x[1]+x[2]+x[3]+x[4])*f₃₊₁₂;
-f₃₊₁₃
-]
+f₃₊₁₃;
+(x[1]+x[2]+x[3]+x[4])*f₂₊₂;
+f₂₊₁₊₁
+], monomials(x,3))) == size(ρₚ₃,1)
+
+# p = 4
+@test rank(coeff_matrix([
+(x[1]^4 + x[2]^4 + x[3]^4 + x[4]^4)*f₄;
+(x[1]+x[2]+x[3]+x[4])*(x[1]^3 + x[2]^3 + x[3]^3 + x[4]^3)*f₄;
+(x[1]+x[2]+x[3]+x[4])^2*(x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₄;
+(x[1]+x[2]+x[3]+x[4])^4*f₄;
+f₄₂;
+(x[1]^3 + x[2]^3 + x[3]^3 + x[4]^3)*f₃₊₁;
+(x[1]+x[2]+x[3]+x[4])*(x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₃₊₁;
+(x[1]+x[2]+x[3]+x[4])^3*f₃₊₁;
+(x[1]^2+x[2]^2+x[3]^2+x[4]^2)*f₃₊₁₂;
+(x[1]+x[2]+x[3]+x[4])^2*f₃₊₁₂;
+(x[1]+x[2]+x[3]+x[4])*f₃₊₁₃;
+(x[1]^2+x[2]^2+x[3]^2+x[4]^2)*f₂₊₂;
+(x[1]+x[2]+x[3]+x[4])^2*f₂₊₂;
+f₂₊₂₂;
+(x[1]+x[2]+x[3]+x[4])*f₂₊₁₊₁;
+f₂₊₁₊₁₂
+], monomials(x,4))) == size(ρₚ₄,1)
+
+# p = 4
+@test rank(coeff_matrix([
+(x[1]^5 + x[2]^5 + x[3]^5 + x[4]^5)*f₄;
+(x[1]+x[2]+x[3]+x[4])*(x[1]^4 + x[2]^4 + x[3]^4 + x[4]^4)*f₄;
+(x[1]+x[2]+x[3]+x[4])^2*(x[1]^3 + x[2]^3 + x[3]^3 + x[4]^3)*f₄;
+(x[1]+x[2]+x[3]+x[4])^3*(x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₄;
+(x[1]+x[2]+x[3]+x[4])^5*f₄;
+(x[1]+x[2]+x[3]+x[4])*f₄₂;
+(x[1]^4 + x[2]^4 + x[3]^4 + x[4]^4)*f₃₊₁;
+(x[1]+x[2]+x[3]+x[4])*(x[1]^3 + x[2]^3 + x[3]^3 + x[4]^3)*f₃₊₁;
+(x[1]+x[2]+x[3]+x[4])^2*(x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2)*f₃₊₁;
+(x[1]+x[2]+x[3]+x[4])^4*f₃₊₁;
+(x[1]^3+x[2]^3+x[3]^3+x[4]^3)*f₃₊₁₂;
+(x[1]+x[2]+x[3]+x[4])*(x[1]^2+x[2]^2+x[3]^2+x[4]^2)*f₃₊₁₂;
+(x[1]+x[2]+x[3]+x[4])^3*f₃₊₁₂;
+(x[1]^2+x[2]^2+x[3]^2+x[4]^2)*f₃₊₁₃;
+(x[1]+x[2]+x[3]+x[4])^2*f₃₊₁₃;
+f₃₊₁₄;
+(x[1]^3+x[2]^3+x[3]^3+x[4]^3)*f₂₊₂;
+(x[1]+x[2]+x[3]+x[4])*(x[1]^2+x[2]^2+x[3]^2+x[4]^2)*f₂₊₂;
+(x[1]+x[2]+x[3]+x[4])^3*f₂₊₂;
+(x[1]+x[2]+x[3]+x[4])*f₂₊₂₂;
+(x[1]^2+x[2]^2+x[3]^2+x[4]^2)*f₂₊₁₊₁;
+(x[1]+x[2]+x[3]+x[4])^2*f₂₊₁₊₁;
+(x[1]+x[2]+x[3]+x[4])*f₂₊₁₊₁₂
+], monomials(x,5))) == size(ρₚ₅,1)
