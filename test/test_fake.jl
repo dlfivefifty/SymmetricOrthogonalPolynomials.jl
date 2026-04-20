@@ -673,3 +673,21 @@ rank(coeff_matrix(Ss, monomials([x;y],5)))
 det([ones(4) x.^2 x.*y y.^2])
 det([x y x.^2 y.^2])
 det([x y x.^2 x.*y])
+
+
+
+
+
+# 
+
+
+
+
+q = blockdiagonalize(Representation(3,2,1) ⊗ Representation(3,2,1))[2][:,1]
+
+blockdiagonalize(Representation((Representation(3,2,1) ⊗ Representation(3,2,1)).generators[1:end-1]))[2][:,1:3]
+
+
+n = 8
+count(!iszero, round.(blockdiagonalize( Representation(n-2,1,1) ⊗ Representation(3, fill(1,n-3)...))[2][:,1]; digits=6))
+
