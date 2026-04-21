@@ -691,3 +691,7 @@ blockdiagonalize(Representation((Representation(3,2,1) ⊗ Representation(3,2,1)
 n = 8
 count(!iszero, round.(blockdiagonalize( Representation(n-2,1,1) ⊗ Representation(3, fill(1,n-3)...))[2][:,1]; digits=6))
 
+
+
+
+𝐪 = λ -> blockdiagonalize(Representation(λ) ⊗ Representation(λ'))[2][:,1]
