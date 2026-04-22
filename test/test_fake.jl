@@ -14,6 +14,8 @@ function coeff_matrix(polys, monos)
     return C
 end
 
+𝐪 = λ -> blockdiagonalize(Representation(λ) ⊗ Representation(λ'))[2][:,1]
+
 function polypermgen(n, p)
     @polyvar x[1:n] monomial_order = Graded{DynamicPolynomials.Reverse{LexOrder}}
 
@@ -694,4 +696,34 @@ count(!iszero, round.(blockdiagonalize( Representation(n-2,1,1) ⊗ Representati
 
 
 
-𝐪 = λ -> blockdiagonalize(Representation(λ) ⊗ Representation(λ'))[2][:,1]
+𝐪(Partition(2,1))
+
+F_λ = function(λ)
+    Ys = youngtableaux(λ)
+    𝐪_λ = 𝐪(λ)
+    s = sign.(𝐪_λ[findall(!iszero, round.(𝐪_λ; digits=10))])
+    
+end
+
+
+filter(!iszero, vec(YoungMatrix(youngtableaux(Partition(3,2,1))[1])))
+
+λ = Partition(3,2,1)
+YT = YoungMatrix.(youngtableaux(λ))
+qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT) 
+@test qq == -sign.(filter(!iszero, round.(𝐪(λ);digits=10)))
+
+for k = 1:12
+    @show k
+    for λ in partitions(k)
+        ρ  = Representation(λ)
+        ρ′ = Representation(λ')
+        YT = YoungMatrix.(youngtableaux(λ))
+        qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT) 
+        𝐪𝐪 = vec(Diagonal(qq)[end:-1:1,:])
+
+        for g in (ρ ⊗ ρ′).generators
+            @test g * 𝐪𝐪 ≈ -𝐪𝐪
+        end
+    end
+end
