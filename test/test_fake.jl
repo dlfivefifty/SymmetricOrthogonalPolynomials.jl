@@ -69,8 +69,8 @@ c = Permutation([[1,2,3]])
 @test all(subs(f₂₊₁₂, x[1] => x[2], x[2] => x[1]) .≈ ρ₂₊₁(τ₁) * f₂₊₁₂)
 @test all(subs(f₂₊₁₂,  ([x[2:n]; x[1]] .=> x)...) .≈ ρ₂₊₁(c) * f₂₊₁₂)
 
-@test subs(fₛ , x[1] => x[2], x[2] => x[1]) ≈ only(ρₛ(τ₁)) * fₛ 
-@test subs(fₛ ,  ([x[2:n]; x[1]] .=> x)...) .≈ only(ρₛ(c)) * fₛ 
+@test subs(fₛ , x[1] => x[2], x[2] => x[1]) ≈ only(ρₛ(τ₁)) * fₛ
+@test subs(fₛ ,  ([x[2:n]; x[1]] .=> x)...) .≈ only(ρₛ(c)) * fₛ
 
 
 
@@ -137,18 +137,24 @@ end
 # 3D
 ####
 
-@test !haskey(multiplicities(ρₜ ⊗ ρₜ ⊗ ρₜ), Partition(1,1,1))
 @test multiplicities(ρₜ ⊗ ρₜ ⊗ ρₛ)[Partition(1,1,1)] == 1
+@test multiplicities(ρₜ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
+@test multiplicities(ρₛ ⊗ ρₛ ⊗ ρₛ)[Partition(1,1,1)] == 1
+@test multiplicities(ρₛ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
+@test multiplicities(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
+@test !haskey(multiplicities(ρₜ ⊗ ρₜ ⊗ ρₜ), Partition(1,1,1))
 @test !haskey(multiplicities(ρₜ ⊗ ρₜ ⊗ ρ₂₊₁), Partition(1,1,1))
 @test !haskey(multiplicities(ρₜ ⊗ ρₛ ⊗ ρₛ), Partition(1,1,1))
 @test !haskey(multiplicities(ρₜ ⊗ ρₛ ⊗ ρ₂₊₁), Partition(1,1,1))
-@test multiplicities(ρₜ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
-@test multiplicities(ρₛ ⊗ ρₛ ⊗ ρₛ)[Partition(1,1,1)] == 1
 @test !haskey(multiplicities(ρₛ ⊗ ρₛ ⊗ ρ₂₊₁), Partition(1,1,1))
-@test multiplicities(ρₛ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
-@test multiplicities(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
 
-@test blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[2][:,1] ≈ -[-1,0,0,1,0,1,1,0]/2
+@test blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρₛ)[2][:,1] ≈ [1,  0,    
+                                                    0,  1]/sqrt(2)
+
+
+
+@test blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[2][:,1] ≈ [-1,0,    0,1,    
+                                                       0,1,     1,0]/2
 
 
 Fs = [
@@ -251,14 +257,14 @@ f₃₊₁₂ = [(x[1]^2-x[2]^2)/sqrt(2), (x[1]^2+x[2]^2)/sqrt(6)-2x[3]^2/sqrt(6
 f₃₊₁₃ = [(x[1]^3-x[2]^3)/sqrt(2), (x[1]^3+x[2]^3)/sqrt(6)-2x[3]^3/sqrt(6), (x[1]^3+x[2]^3+x[3]^3)/sqrt(12)-sqrt(3)/2 * x[4]^3]
 f₂₊₂ =  -[(x[1]x[3]-x[1]x[4]-x[2]x[3]+x[2]x[4])/2, (x[1]x[2]+x[3]x[4])/sqrt(3) - (x[1]x[3]+x[1]x[4]+x[2]x[3]+x[2]x[4])/sqrt(12)]
 f₂₊₂₂ =  [(x[1]^2*x[3]^2-x[1]^2*x[4]^2-x[2]^2*x[3]^2+x[2]^2*x[4]^2)/2, (x[1]^2*x[2]^2+x[3]^2*x[4]^2)/sqrt(3) - (x[1]^2*x[3]^2+x[1]^2*x[4]^2+x[2]^2*x[3]^2+x[2]^2*x[4]^2)/sqrt(12)]
-f₂₊₁₊₁ = [(x[1]^2*x[2]-x[1]^2*x[3]-x[1]x[2]^2+x[1]x[3]^2+x[2]^2*x[3]-x[2]x[3]^2)/sqrt(6), 
+f₂₊₁₊₁ = [(x[1]^2*x[2]-x[1]^2*x[3]-x[1]x[2]^2+x[1]x[3]^2+x[2]^2*x[3]-x[2]x[3]^2)/sqrt(6),
           (2x[1]^2*x[2]+x[1]^2*x[3]-3x[1]^2*x[4]-2x[1]x[2]^2-x[1]x[3]^2+3x[1]x[4]^2-x[2]^2*x[3]+3x[2]^2*x[4]+x[2]x[3]^2-3x[2]x[4]^2)/sqrt(48),
           (x[1]^2*x[3]-x[1]^2*x[4]-x[1]x[3]^2+x[1]x[4]^2+x[2]^2*x[3]-x[2]^2*x[4]-x[2]x[3]^2+x[2]x[4]^2+2x[3]^2*x[4]-2x[3]x[4]^2)/4]
 f₂₊₁₊₁₂ = [x[1]^2*x[2]x[4]-x[1]^2*x[3]x[4]-x[1]x[2]^2*x[4]+x[1]x[3]^2*x[4]+x[2]^2*x[3]x[4]-x[2]x[3]^2*x[4],
             (3x[1]^2*x[2]x[3]-x[1]^2*x[2]x[4]-2x[1]^2*x[3]x[4]-3x[1]x[2]^2*x[3]+x[1]x[2]^2*x[4]-x[1]x[3]^2*x[4]+3x[1]x[3]x[4]^2+2x[2]^2*x[3]x[4]+x[2]x[3]^2*x[4]-3x[2]x[3]x[4]^2)/sqrt(8),
             (x[1]^2*x[2]x[3]-x[1]^2*x[2]x[4]+x[1]x[2]^2*x[3]-x[1]x[2]^2*x[4]-2x[1]x[2]x[3]^2+2x[1]x[2]x[4]^2+x[1]x[3]^2*x[4]-x[1]x[3]x[4]^2+x[2]x[3]^2*x[4]-x[2]x[3]x[4]^2)/sqrt(8/3)
             ]
-f₂₊₁₊₁₃ = [(x[1]^2*x[2]^3-x[1]^2*x[3]^3-x[1]^3*x[2]^2+x[1]^3*x[3]^2+x[2]^2*x[3]^3-x[2]^3*x[3]^2)/sqrt(6), 
+f₂₊₁₊₁₃ = [(x[1]^2*x[2]^3-x[1]^2*x[3]^3-x[1]^3*x[2]^2+x[1]^3*x[3]^2+x[2]^2*x[3]^3-x[2]^3*x[3]^2)/sqrt(6),
           (2x[1]^2*x[2]^3+x[1]^2*x[3]^3-3x[1]^2*x[4]^3-2x[1]^3*x[2]^2-x[1]^3*x[3]^2+3x[1]^3*x[4]^2-x[2]^2*x[3]^3+3x[2]^2*x[4]^3+x[2]^3*x[3]^2-3x[2]^3*x[4]^2)/sqrt(48),
           (x[1]^2*x[3]^3-x[1]^2*x[4]^3-x[1]^3*x[3]^2+x[1]^3*x[4]^2+x[2]^2*x[3]^3-x[2]^2*x[4]^3-x[2]^3*x[3]^2+x[2]^3*x[4]^2+2x[3]^2*x[4]^3-2x[3]^3*x[4]^2)/4]
 fₛ = (x[1]-x[2])*(x[1]-x[3])*(x[1]-x[4])*(x[2]-x[3])*(x[2]-x[4])*(x[3]-x[4])
@@ -539,10 +545,23 @@ end
 @test multiplicities(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₂₊₂)[Partition(1,1,1,1)] == 1
 @test multiplicities(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₃₊₁)[Partition(1,1,1,1)] == 1
 @test multiplicities(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₂₊₁₊₁)[Partition(1,1,1,1)] == 1
+@test multiplicities(ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁)[Partition(1,1,1,1)] == 1
+@test multiplicities(ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁)[Partition(1,1,1,1)] == 1
+@test multiplicities(ρ₃₊₁ ⊗ ρ₂₊₂ ⊗ ρ₂₊₁₊₁)[Partition(1,1,1,1)] == 1
 @test !haskey(multiplicities(ρ₃₊₁ ⊗ ρ₂₊₂ ⊗ ρ₂₊₂), Partition(1,1,1,1))
 
-blockdiagonalize(ρ₂₊₂ ⊗ ρ₂₊₂ ⊗ ρ₂₊₂)[2][:,1]
-blockdiagonalize(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₃₊₁)[2][:,1]
+τ₁ = Permutation([[1,2], [3],[4]])
+c = Permutation([[1,2,3,4]])
+@test (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂)(τ₁) ≈ kron(ρ₃₊₁(τ₁), ρ₂₊₁₊₁(τ₁),ρ₂₊₂(τ₁)) ≈  kron(kron(ρ₃₊₁(τ₁), ρ₂₊₁₊₁(τ₁)),ρ₂₊₂(τ₁))
+@test (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂)(c) ≈ kron(ρ₃₊₁(c), ρ₂₊₁₊₁(c),ρ₂₊₂(c)) ≈ kron(kron(ρ₃₊₁(c), ρ₂₊₁₊₁(c)),ρ₂₊₂(c))
+
+@test blockdiagonalize(ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂)[2][:,1] ≈ [sqrt(2),0,  1,0,        0,-1,
+                                                        0,sqrt(2),  0,-1,       -1,0,
+                                                        0,0,        0,-sqrt(2), sqrt(2),0]/sqrt(12)
+@test blockdiagonalize(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₂₊₂)[2][:,1] ≈ [1,0,0,-1,0,sqrt(2),0,-1,-1,0,-sqrt(2),0,0,sqrt(2),-sqrt(2),0,0,0]/sqrt(12)
+@test blockdiagonalize(ρ₂₊₂ ⊗ ρ₂₊₂ ⊗ ρ₂₊₂)[2][:,1] ≈ [-1,0,0,1,0,1,1,0]/2
+@test blockdiagonalize(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₃₊₁)[2][:,1] ≈ [0,0,0,0,0,-1,0,1,0,0,0,1,0,0,0,-1,0,0,0,-1,0,1,0,0,0,0,0]/sqrt(6)
+blockdiagonalize(ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁)[2][:,1]
 blockdiagonalize(ρ₃₊₁ ⊗ ρ₃₊₁ ⊗ ρ₂₊₁₊₁)[2][:,1]
 
 
@@ -610,7 +629,7 @@ det([x y y.^2])
 @test rank(C) == 14
 
 # degree of p = 2invariant polys:
-@test 6 == 2multiplicities(polypermgen(3,2) ⊗ polypermgen(3,0))[Partition(n)] +# 2*2 
+@test 6 == 2multiplicities(polypermgen(3,2) ⊗ polypermgen(3,0))[Partition(n)] +# 2*2
 multiplicities(polypermgen(3,1) ⊗ polypermgen(3,1))[Partition(n)]# 2
 # total # of p = 4 invariant polys:
 5 + 2*4 + 1
@@ -680,7 +699,7 @@ det([x y x.^2 x.*y])
 
 
 
-# 
+#
 
 
 
@@ -702,7 +721,7 @@ F_λ = function(λ)
     Ys = youngtableaux(λ)
     𝐪_λ = 𝐪(λ)
     s = sign.(𝐪_λ[findall(!iszero, round.(𝐪_λ; digits=10))])
-    
+
 end
 
 
@@ -710,7 +729,7 @@ filter(!iszero, vec(YoungMatrix(youngtableaux(Partition(3,2,1))[1])))
 
 λ = Partition(3,2,1)
 YT = YoungMatrix.(youngtableaux(λ))
-qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT) 
+qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT)
 @test qq == -sign.(filter(!iszero, round.(𝐪(λ);digits=10)))
 
 for k = 1:12
@@ -719,7 +738,7 @@ for k = 1:12
         ρ  = Representation(λ)
         ρ′ = Representation(λ')
         YT = YoungMatrix.(youngtableaux(λ))
-        qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT) 
+        qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT)
         𝐪𝐪 = vec(Diagonal(qq)[end:-1:1,:])
 
         for g in (ρ ⊗ ρ′).generators
@@ -727,3 +746,210 @@ for k = 1:12
         end
     end
 end
+
+
+
+####
+# proof of 𝐪𝐪
+
+λ = Partition(2,1)
+ρ  = Representation(λ)
+ρ′ = Representation(λ')
+YT = YoungMatrix.(youngtableaux(λ))
+qq = map(yt -> sign(Permutation(filter(!iszero, vec(yt)))), YT)
+Σ = Diagonal(qq)[end:-1:1,:]
+
+for g in PermGen(3)
+    @test ρ(g) * Σ * ρ′(g)' ≈ sign(g) * Σ
+end
+
+
+@test ρ.generators[2] * Σ * ρ′.generators[2] ≈ -Σ
+
+Representation(λ).generators
+
+
+
+
+###
+# build up 3D
+####
+
+# n = 2
+multiplicities(Representation(1,1) ⊗ Representation(2) ⊗ Representation(2))
+multiplicities(Representation(1,1) ⊗ Representation(1,1) ⊗ Representation(1,1))
+
+# n = 3
+
+r = 2; Q = [1/r sqrt(1-1/r^2); sqrt(1-1/r^2) -1/r]
+X = reshape(blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρₜ)[2][:,1], 1,2,2)
+
+@test ρ₂₊₁.generators[2] ≈ Q
+τ₁,τ₂ = (ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρₜ).generators
+@test τ₁ ≈ kron(Diagonal([-1,1]), Diagonal([-1,1]), [1;;])
+@test X[1,1,1] == X[1,2,2] == 0 # since τ₁*X Hits X[1,1,1] by 1^3 and X[1,2,2] by (-1)^2*1
+@test τ₂ ≈ kron(Q, Q, [1;;])
+@test τ₂ * vec([0 1; -1 0]) ≈ kron(Q,Q) * vec([0 1; -1 0]) ≈ -vec([0 1; -1 0])
+@test X[1,1,2] ≈ - X[1,2,1]
+
+# therefore X = c*[0 1; - 1 0]
+
+
+X = reshape(blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρₛ)[2][:,1], 1, 2, 2)
+τ₁,τ₂ = (ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρₛ).generators
+@test τ₁ ≈ kron(Diagonal([-1,1]), Diagonal([-1,1]), [-1;;])
+@test X[1,1,2] == X[1,2,1] == 0 # since τ₁*X Hits X[1,1,2] by (-1)*(-1)*1 and X[1,2,1] by (-1)*(-1)*1
+@test τ₂ ≈ kron(Q, Q, [-1;;])
+@test kron(Q,Q) * vec([1 0; 0 1]) ≈ vec([1 0; 0 1])
+@test τ₂ * vec([1 0; 0 1]) ≈ -vec([1 0; 0 1])
+@test X[1,1,1] ≈ X[1,2,2]
+# therefore X = c*[1 0; 0 1]
+
+X = reshape(blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[2][:,1], 2, 2, 2)
+τ₁,τ₂ = (ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁).generators
+@test τ₁ ≈ kron(Diagonal([-1,1]), Diagonal([-1,1]), Diagonal([-1,1]))
+@test X[1,1,2] == X[1,2,1] == X[2,1,1] == X[2,2,2] == 0
+@test τ₂ ≈ kron(Q, Q, Q)
+# we need to find the eigvector that is zero in the right entries
+# we can do this via a filter:
+P = I(size(X,1)^3)[[1,4,6,7],:]
+Q̃ = P * kron(Q, Q, Q) * P'
+@test Q̃ * [-1,1,1,1] ≈ -[-1,1,1,1]
+# thus we have
+@test -X[1,1,1] ≈ X[1,2,2] ≈ X[2,1,2] ≈ X[2,2,1]
+# therefore X = c*[[-1 0; 0 1]; [0 1; 1 0]]
+@test X ≈ [[-1 0; 0 1];;; [0 1; 1 0]]/2
+
+# note we can think of it as the following SYT that are interacting:
+# 1 3   ⊗   1   3  ⊗    1   3
+# 2         2           2
+# 1 3   ⊗   1   2  ⊗    1   2
+# 2         3           3
+# 1 2   ⊗   1   3  ⊗    1   2
+# 3         2           3
+# 1 2   ⊗   1   2  ⊗    1   3
+# 3         3           2
+
+
+# because when we swap 2 and 3 all of these are inter-connected
+
+X = reshape(blockdiagonalize(ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂)[2][:,1], 2, 3, 3)
+τ₁,τ₂,τ₃ = (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂).generators
+@test τ₁ ≈ kron(Diagonal([-1,1,1]), Diagonal([-1,-1,1]), Diagonal([-1,1]))
+@test X[2,1,1] == X[2,2,1] == X[1,3,1] == X[1,1,2] == X[1,2,2] == X[2,3,2] == X[1,1,3]  == X[1,2,3] == X[2,3,3] == 0
+
+
+# when we drop the last blocks we have copies of
+# 2+1 ⊗ 1+1+1 ⊗ 2+1 
+# from entries
+# 1:2 ⊗ 1:1 ⊗ 1:2
+# hence
+
+@test sqrt(3) * vec(X[1:2,1:1,1:2]) ≈ blockdiagonalize(Representation(2,1) ⊗ Representation(1,1,1) ⊗ Representation(2,1))[2][:,1]
+
+# 2+1 ⊗ 2+1 ⊗ 2+1 
+# from entries
+# 1:2 ⊗ 2:3 ⊗ 1:2
+# hence
+@test -sqrt(3) * vec(X[1:2,2:3,1:2]) ≈ blockdiagonalize(Representation(2,1) ⊗ Representation(2,1) ⊗ Representation(2,1))[2][:,1]
+
+# 3 ⊗ 1+1+1 ⊗ 2+1 
+# from entries
+# 3:3 ⊗ 1:1 ⊗ 1:2
+# but this has no sign representation hence
+@test all(iszero, X[1:2,1:1,3:3])
+
+# 3 ⊗ 2+1 ⊗ 2+1 
+# from entries
+# 3:3 ⊗ 2:3 ⊗ 1:2
+@test -sqrt(3) * vec(X[1:2,2:3,3:3]) ≈ blockdiagonalize(Representation(3) ⊗ Representation(2,1) ⊗ Representation(2,1))[2][:,1]
+
+# this has established a zero pattern
+# we now consider τ_3 which  permutes 3 and 4
+# We know X[1,1,1] (linear index 1) has SYT
+# 1 3 4     ⊗   1 4     ⊗       1 3
+# 2             2               2 4
+#               3
+# interacts with X[1,2,1] (linear index 3) with SYT
+# 1 3 4     ⊗   1 3     ⊗       1 3
+# 2             2               2 4
+#               4
+# according to the following:
+
+
+r = 3; Q = [1/r sqrt(1-1/r^2); sqrt(1-1/r^2) -1/r]
+@test τ₃[[1,3],[1,3]] ≈ -Q ≈ kron([1;;],Q,[-1;;])
+@test τ₃[[1,3],[1,3]] * [sqrt(2),1] ≈ -[sqrt(2),1]
+@test τ₃[[1,3],[1,3]]*X[[1,3]] ≈ - X[[1,3]]
+@test X[[1,3]] ≈ 1/sqrt(12) * [sqrt(2),1]
+
+# hence we know the ratio:
+@test X[1,1,1]/sqrt(2) ≈ X[1,2,1]
+
+# or in linear indexing
+@test X[1]/sqrt(2) ≈ X[3]
+
+# that is, we can relate the blocks 
+# 2+1 ⊗ 1+1+1 ⊗ 2+1     (X[1:2,1:1,1:2])
+# to
+# 2+1 ⊗ 2+1 ⊗ 2+1       (X[1:2,2:3,1:2]))
+# we now need to relate that last group (3 ⊗ 2+1 ⊗ 2+1)
+# whose indices range X[1:2,2:3,3:3].
+# We know X[1,2,3] (linear index 15) has SYT
+# 1 2 3     ⊗   1 3     ⊗       1 3
+# 4             2               2 4
+#               4
+# but this will be zero since when we drop 4 then 3 we are
+# left with 2 ⊗ 1+1 ⊗ 1+1 which has no sign representation. Similar
+#  with X[1,1,3] (linear index 13) with SYT
+# 1 2 3     ⊗   1 4     ⊗       1 3
+# 4             2               2 4
+#               3
+# and  with X[1,1,2] (linear index 7) with SYT
+# 1 2 4     ⊗   1 4     ⊗       1 3
+# 3             2               2 4
+#               3
+# and  with X[1,2,2] (linear index 9) with SYT
+# 1 2 4     ⊗   1 3     ⊗       1 3
+# 3             2               2 4
+#               4
+# Thus consider the next SYT in this family
+# X[1,3,3] (linear indexing 17)
+# 1 2 3     ⊗   1 2     ⊗       1 3
+# 4             3               2 4
+#               4
+# which only interacts with X[1,3,2] (linear indexing 11)
+# 1 2 4     ⊗   1 2     ⊗       1 3
+# 3             3               2 4
+#               4
+# according to the following:
+
+
+r = 3; Q = [1/r sqrt(1-1/r^2); sqrt(1-1/r^2) -1/r]
+
+@test Representation(3,1).generators[3][2:3,2:3] ≈ Q
+
+@test τ₃[[11,17],[11,17]] ≈ Q ≈ kron(Q,[-1;;],[-1;;])
+@test τ₃[[11,17],[11,17]] * [1,-sqrt(2)] ≈ -[1,-sqrt(2)]
+@test τ₃[[11,17],[11,17]]*X[[11,17]] ≈ -X[[11,17]]
+@test X[[11,17]] ≈ -1/sqrt(12) * [1,-sqrt(2)]
+# hence we know the ratio:
+@test X[1,3,2]*sqrt(2) ≈ -X[1,3,3]
+
+
+# thus we have arrived an algorithm for building up X (up to a constant):
+
+X̃ = similar(X); X̃ .= NaN
+X̃[1:2,1:1,1:2] = blockdiagonalize(Representation(2,1) ⊗ Representation(1,1,1) ⊗ Representation(2,1))[2][:,1]
+X̃[1:2,2:3,1:2] = blockdiagonalize(Representation(2,1) ⊗ Representation(2,1) ⊗ Representation(2,1))[2][:,1]
+X̃[1:2,1:1,3:3] .= 0
+X̃[1:2,2:3,3:3] = blockdiagonalize(Representation(3) ⊗ Representation(2,1) ⊗ Representation(2,1))[2][:,1]
+@test !any(isnan, X̃) # we have non-zero entries
+@test (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂).generators[1] * vec(X̃) ≈ -vec(X̃)
+@test (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂).generators[2] * vec(X̃) ≈ -vec(X̃)
+# we haven't got the normalisation in yet! We need to change the constants
+@test !((ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂).generators[3] * vec(X̃) ≈ -vec(X̃))
+
+X̃[1:2,2:3,1:2] *= X̃[1,1,1]/(sqrt(2)X̃[1,2,1])
+X̃[1:2,2:3,3:3] *= -X̃[1,3,2]*sqrt(2)/X̃[1,3,3]
+@test (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂).generators[3] * vec(X̃) ≈ -vec(X̃)
