@@ -953,3 +953,145 @@ X̃[1:2,2:3,3:3] = blockdiagonalize(Representation(3) ⊗ Representation(2,1) �
 X̃[1:2,2:3,1:2] *= X̃[1,1,1]/(sqrt(2)X̃[1,2,1])
 X̃[1:2,2:3,3:3] *= -X̃[1,3,2]*sqrt(2)/X̃[1,3,3]
 @test (ρ₃₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₂).generators[3] * vec(X̃) ≈ -vec(X̃)
+
+
+
+
+
+#### tree
+
+
+𝐪 = Dict()
+
+λ₃ = Partition(3)
+λ₂₊₁ = Partition(2,1)
+λ₁₊₁₊₁ = Partition(1,1,1)
+
+
+ρ₃ = Representation(3)
+ρ₂₊₁ = Representation(2,1)
+ρ₁₊₁₊₁ = Representation(1,1,1)
+Q₂₊₁ = ρ₂₊₁.generators[2]
+
+@test multiplicities(ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁)[Partition(1,1,1)] == 1
+
+𝐪[(λ₁₊₁₊₁ , λ₁₊₁₊₁ , λ₁₊₁₊₁)] = [1]
+let 𝐯 = 𝐪[(λ₁₊₁₊₁ , λ₁₊₁₊₁ , λ₁₊₁₊₁)]
+    for g in (ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁).generators
+        @test g*𝐯 ≈ -𝐯
+    end
+end
+
+@test !haskey(multiplicities(ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁ ⊗ ρ₂₊₁), Partition(1,1,1))
+@test !haskey(multiplicities(ρ₁₊₁₊₁ ⊗ ρ₂₊₁ ⊗ ρ₁₊₁₊₁), Partition(1,1,1))
+
+@test multiplicities(ρ₁₊₁₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
+@test eigen(Matrix(kron(-I(1), Q₂₊₁, Q₂₊₁))[[1,4],[1,4]]).vectors[:,1] ≈ [1,1]/sqrt(2)
+
+𝐪[(λ₁₊₁₊₁, λ₂₊₁, λ₂₊₁)] = [1,0,0,1]
+let 𝐯 = 𝐪[(λ₁₊₁₊₁ , λ₂₊₁ , λ₂₊₁)]
+    for g in (ρ₁₊₁₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁).generators
+        @test g*𝐯 ≈ -𝐯
+    end
+end
+
+@test !haskey(multiplicities(ρ₁₊₁₊₁ ⊗ ρ₂₊₁ ⊗ ρ₃), Partition(1,1,1))
+@test !haskey(multiplicities(ρ₁₊₁₊₁ ⊗ ρ₃ ⊗ ρ₁₊₁₊₁), Partition(1,1,1))
+@test !haskey(multiplicities(ρ₁₊₁₊₁ ⊗ ρ₃ ⊗ ρ₂₊₁), Partition(1,1,1))
+
+@test multiplicities(ρ₁₊₁₊₁ ⊗ ρ₃ ⊗ ρ₃)[Partition(1,1,1)] == 1
+
+𝐪[(λ₁₊₁₊₁ , λ₃ , λ₃)] = [1]
+let 𝐯 = 𝐪[(λ₁₊₁₊₁ , λ₃ , λ₃)]
+    for g in (ρ₁₊₁₊₁ ⊗ ρ₃ ⊗ ρ₃).generators
+        @test g*𝐯 ≈ -𝐯
+    end
+end
+
+@test !haskey(multiplicities(ρ₂₊₁ ⊗ ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁), Partition(1,1,1))
+@test multiplicities(ρ₂₊₁ ⊗ ρ₁₊₁₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1 # see above
+@test multiplicities(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₁₊₁₊₁)[Partition(1,1,1)] == 1 # see above
+
+@test multiplicities(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1
+
+𝐪[(λ₂₊₁ , λ₂₊₁ , λ₂₊₁)] = [1,0,0,-1,0,-1,-1,0]
+let 𝐯 = 𝐪[(λ₂₊₁ , λ₂₊₁ , λ₂₊₁)]
+    for g in (ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁).generators
+        @test g*𝐯 ≈ -𝐯
+    end
+end
+
+@test multiplicities(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₃)[Partition(1,1,1)] == 1
+
+𝐪[(λ₂₊₁ , λ₂₊₁ , λ₃)] =  [0,1,-1,0]
+let 𝐯 =𝐪[(λ₂₊₁ , λ₂₊₁ , λ₃)]
+    for g in (ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₃).generators
+        @test g*𝐯 ≈ -𝐯
+    end
+end
+
+@test !haskey(multiplicities(ρ₂₊₁ ⊗ ρ₃ ⊗ ρ₁₊₁₊₁), Partition(1,1,1))
+@test multiplicities(ρ₂₊₁ ⊗ ρ₃ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1 # see above
+@test !haskey(multiplicities(ρ₂₊₁ ⊗ ρ₃ ⊗ ρ₃), Partition(1,1,1))
+
+@test !haskey(multiplicities(ρ₃ ⊗ ρ₁₊₁₊₁ ⊗ ρ₁₊₁₊₁), Partition(1,1,1))
+@test !haskey(multiplicities(ρ₃ ⊗ ρ₁₊₁₊₁ ⊗ ρ₂₊₁), Partition(1,1,1))
+@test multiplicities(ρ₃ ⊗ ρ₁₊₁₊₁ ⊗ ρ₃)[Partition(1,1,1)] == 1 # see above
+@test !haskey(multiplicities(ρ₃ ⊗ ρ₂₊₁ ⊗ ρ₁₊₁₊₁), Partition(1,1,1))
+@test multiplicities(ρ₃ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[Partition(1,1,1)] == 1 # see above
+@test !haskey(multiplicities(ρ₃ ⊗ ρ₂₊₁ ⊗ ρ₃), Partition(1,1,1))
+@test multiplicities(ρ₃ ⊗ ρ₃ ⊗ ρ₁₊₁₊₁)[Partition(1,1,1)] == 1 # see above
+@test !haskey(multiplicities(ρ₃ ⊗ ρ₃ ⊗ ρ₂₊₁), Partition(1,1,1))
+@test !haskey(multiplicities(ρ₃ ⊗ ρ₃ ⊗ ρ₃), Partition(1,1,1))
+
+# configuration
+
+@test eigvals(Matrix(kron(Q₂₊₁,Q₂₊₁,Q₂₊₁)[[1,4,6,7],[1,4,6,7]])) ≈ [-1,1,1,1]
+@test eigen(Matrix(kron(Q₂₊₁,Q₂₊₁,Q₂₊₁)[[1,4,6,7],[1,4,6,7]])).vectors[:,1] ≈ [1,-1,-1,-1]/2
+
+𝐪₂₊₁ = blockdiagonalize(ρ₂₊₁ ⊗ ρ₂₊₁ ⊗ ρ₂₊₁)[2][:,1]
+
+Q = ρ₂₊₁.generators[2]
+
+
+
+# n = 4
+
+
+λ₄ = Partition(4)
+λ₃₊₁ = Partition(3,1)
+λ₂₊₂ = Partition(2,2)
+λ₂₊₁₊₁ = Partition(2,1,1)
+λ₁₊₁₊₁₊₁ = Partition(1,1,1,1)
+
+ρ₄ = Representation(4)
+ρ₃₊₁ = Representation(3,1)
+ρ₂₊₂ = Representation(2,2)
+ρ₂₊₁₊₁ = Representation(2,1,1)
+ρ₁₊₁₊₁₊₁ = Representation(1,1,1,1)
+
+@test multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁)[λ₁₊₁₊₁₊₁] == 1
+let 𝐯 = [1]
+    for g in (ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁).generators
+        @test g*𝐯 ≈ -𝐯
+    end
+end
+
+@test !haskey(multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁ ⊗ ρ₂₊₁₊₁),λ₁₊₁₊₁₊₁)
+@test !haskey(multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁ ⊗ ρ₂₊₂),λ₁₊₁₊₁₊₁)
+@test !haskey(multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁ ⊗ ρ₃₊₁),λ₁₊₁₊₁₊₁)
+@test !haskey(multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁ ⊗ ρ₄),λ₁₊₁₊₁₊₁)
+
+
+@test !haskey(multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₁₊₁₊₁₊₁),λ₁₊₁₊₁₊₁)
+
+@test multiplicities(ρ₁₊₁₊₁₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁)[λ₁₊₁₊₁₊₁] == 1
+𝐪[(λ₁₊₁₊₁₊₁ , λ₂₊₁₊₁ , λ₂₊₁₊₁)] =  zeros(size(ρ₁₊₁₊₁₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁,1))
+𝐪[(λ₁₊₁₊₁₊₁ , λ₂₊₁₊₁ , λ₂₊₁₊₁)][1:1] = 𝐪[(λ₁₊₁₊₁, λ₁₊₁₊₁, λ₁₊₁₊₁)]
+𝐪[(λ₁₊₁₊₁₊₁ , λ₂₊₁₊₁ , λ₂₊₁₊₁)][[5,6,8,9]] = 𝐪[(λ₁₊₁₊₁, λ₂₊₁, λ₂₊₁)]
+
+let 𝐯 = 𝐪[(λ₁₊₁₊₁₊₁ , λ₂₊₁₊₁ , λ₂₊₁₊₁)]
+    for g in (ρ₁₊₁₊₁₊₁ ⊗ ρ₂₊₁₊₁ ⊗ ρ₂₊₁₊₁).generators[1:1]
+        @test g*𝐯 ≈ -𝐯
+    end
+end
