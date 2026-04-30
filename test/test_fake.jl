@@ -1095,3 +1095,7 @@ let 𝐯 = 𝐪[(λ₁₊₁₊₁₊₁ , λ₂₊₁₊₁ , λ₂₊₁₊₁
         @test g*𝐯 ≈ -𝐯
     end
 end
+
+
+# not all multiplicities are 1 or 0
+@test multiplicities(Representation(3,2,1) ⊗ Representation(4,2) ⊗ Representation(3,2,1))[Partition(fill(1,6)...)] == 3
