@@ -5,6 +5,14 @@ spechtpolynomial(yt::YoungTableau, 𝐱) = spechtpolynomial(YoungMatrix(yt), �
 
 𝐱 = [0.1,0.2,0.3,0.4,0.5]
 yt = youngtableaux(Partition(3,1,1))[1]
+
+@test spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), 𝐱) ≈ -spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), [𝐱[2]; 𝐱[1]; 𝐱[3:end]])
+
+yms = YoungMatrix.(youngtableaux(Partition(3,1,1)))
+
+sign(yms[1])
+
+
 sign(yt)
 @test spechtpolynomial(yt)
 
