@@ -1,14 +1,47 @@
 using NumericalRepresentationTheory, DynamicPolynomials, Permutations
 
-spechtpolynomial(yt::YoungMatrix, 𝐱) = prod(prod(prod(𝐱[k]-𝐱[ℓ] for ℓ=k+1:yt.columns[j]) for k = 1:yt.columns[j]-1; init=1) for j = 1:size(yt,2))
-spechtpolynomial(yt::YoungTableau, 𝐱) = spechtpolynomial(YoungMatrix(yt), 𝐱)
+spechtpolynomial(yt::YoungMatrix, x) = prod(prod(prod(x[yt[ℓ,j]]-x[yt[k,j]] for ℓ=k+1:yt.columns[j]) for k = 1:yt.columns[j]-1; init=1) for j = 1:size(yt,2))
+spechtpolynomial(yt::YoungTableau, x) = spechtpolynomial(YoungMatrix(yt), x)
+x = randn(5)
+y = randn(5)
 
-𝐱 = [0.1,0.2,0.3,0.4,0.5]
+@test spechtpolynomial(youngtableaux(Partition(2))[1], x) == 1
+@test spechtpolynomial(youngtableaux(Partition(1,1))[1], x) == x[2]-x[1]
+@test spechtpolynomial(youngtableaux(Partition(3))[1], x) == 1
+@test spechtpolynomial(youngtableaux(Partition(2,1))[1], x) == x[2]-x[1]
+@test spechtpolynomial(youngtableaux(Partition(2,1))[2], x) == x[3]-x[1]
+@test spechtpolynomial(youngtableaux(Partition(1,1,1))[1], x) == (x[2]-x[1])*(x[3]-x[1])*(x[3]-x[2])
+@test spechtpolynomial(youngtableaux(Partition(4))[1], x) == 1
+@test spechtpolynomial(youngtableaux(Partition(3,1))[1], x) == x[2]-x[1]
+@test spechtpolynomial(youngtableaux(Partition(3,1))[2], x) == x[3]-x[1]
+@test spechtpolynomial(youngtableaux(Partition(3,1))[3], x) == x[4]-x[1]
+@test spechtpolynomial(youngtableaux(Partition(2,2))[1], x) == (x[2]-x[1])*(x[4]-x[3])
+@test spechtpolynomial(youngtableaux(Partition(2,2))[2], x) == (x[3]-x[1])*(x[4]-x[2])
+@test spechtpolynomial(youngtableaux(Partition(2,1,1))[1], x) == (x[2]-x[1])*(x[3]-x[1])*(x[3]-x[2])
+@test spechtpolynomial(youngtableaux(Partition(2,1,1))[2], x) == (x[2]-x[1])*(x[4]-x[1])*(x[4]-x[2])
+@test spechtpolynomial(youngtableaux(Partition(2,1,1))[3], x) == (x[3]-x[1])*(x[4]-x[1])*(x[4]-x[3])
+@test spechtpolynomial(youngtableaux(Partition(1,1,1,1))[1], x) ≈ (x[2]-x[1])*(x[3]-x[1])*(x[4]-x[1])*(x[3]-x[2])*(x[4]-x[2])*(x[4]-x[3])
+
+
 yt = youngtableaux(Partition(3,1,1))[1]
 
-@test spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), 𝐱) ≈ -spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), [𝐱[2]; 𝐱[1]; 𝐱[3:end]])
+@test spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), x) ≈ -spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), [x[2]; x[1]; x[3:end]])
 
-yms = YoungMatrix.(youngtableaux(Partition(3,1,1)))
+yms = 
+sum(sign(ym)*spechtpolynomial(ym, x)spechtpolynomial(ym', y) for ym in yms)
+
+n = length(x)
+
+for λ in partitions(5)
+    yms = YoungMatrix.(youngtableaux(λ))
+    for k = 1:n-1
+        τ₁ = [1:k-1; k+1; k; k+2:n]
+        @test sum(sign(ym)*spechtpolynomial(ym, x[τ₁])spechtpolynomial(ym', y[τ₁]) for ym in yms) ≈ -sum(sign(ym)*spechtpolynomial(ym, x)spechtpolynomial(ym', y) for ym in yms)
+    end
+end
+
+
+
 
 sign(yms[1])
 
