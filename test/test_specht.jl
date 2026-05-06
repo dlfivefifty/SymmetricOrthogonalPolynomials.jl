@@ -26,7 +26,7 @@ y = randn(5)
 
 λ = Partition(2,1)
 n = Int(λ)
-x = randn(3)
+x = randn(n)
 @test spechtpolynomial(λ, x[[2;1;3:n]]) ≈ [-1 0; -1 1] * spechtpolynomial(λ, x)
 @test spechtpolynomial(λ, x[[1; 3; 2; 4:n]]) ≈ [0 1; 1 0] * spechtpolynomial(λ, x)
 
@@ -40,6 +40,100 @@ V = reshape(vec(nullspace([kron([-1 0; -1 1]', I(2)) - kron(I(2), ρ.generators[
 
 q = x -> V*spechtpolynomial(λ, x)
 @test q(x[[2;1;3:n]]) ≈ ρ.generators[1] * q(x)
+@test q(x[[1; 3; 2; 4:n]]) ≈ ρ.generators[2] * q(x)
+
+λ = Partition(3,2)
+
+n = Int(λ)
+x = randn(n)
+@test spechtpolynomial(λ,x) ≈ [
+(x[2]-x[1])*(x[4]-x[3])
+(x[2]-x[1])*(x[5]-x[3])
+(x[3]-x[1])*(x[4]-x[2])
+(x[3]-x[1])*(x[5]-x[2])
+(x[4]-x[1])*(x[5]-x[2])
+]
+
+@polyvar x[1:n]
+(x[4]-x[2])*(x[5]-x[1]) ≈  (x[4]-x[1])*(x[5]-x[2]) - (x[2]-x[1])*(x[5]-x[3]) + (x[2]-x[1])*(x[4]-x[3])
+x = randn(n)
+@test spechtpolynomial(λ, x[[2;1;3:n]]) ≈ [-1  0 0 0 0;
+                                            0 -1 0 0 0;
+                                           -1  0 1 0 0;
+                                            0 -1 0 1 0;
+                                            1 -1 0 0 1] * spechtpolynomial(λ, x)
+
+@polyvar x[1:n]
+@test (x[3]-x[1])*(x[4]-x[2]) ≈ (x[3]-x[1])*(x[4]-x[2])
+(x[4]-x[1])*(x[5]-x[3]) - ((x[4]-x[1])*(x[5]-x[2])+ (x[2]-x[1])*(x[4]-x[3])-(x[3]-x[1])*(x[4]-x[2]))
+x = randn(n)
+@test spechtpolynomial(λ, x[[1; 3; 2; 4:n]]) ≈ [0 0 1 0 0;
+                                                0 0 0 1 0;
+                                                1 0 0 0 0;
+                                                0 1 0 0 0
+                                                1 0 -1 0 1] * spechtpolynomial(λ, x)
+
+                                        
+@test spechtpolynomial(λ, x[[1; 2; 4; 3; 5:n]]) ≈ [-1 0 0 0 0;
+                                                -1 1 0 0 0;
+                                                -1 0 1 0 0;
+                                                0 0 0 0 1;
+                                                0 0 0 1 0] * spechtpolynomial(λ, x)
+
+
+
+@polyvar x[1:n]
+x = randn(5)
+@test (x[5]-x[1])*(x[4]-x[2]) ≈ ((x[4]-x[1])*(x[5]-x[2]) - (x[2]-x[1])*(x[5]-x[3]) + (x[2]-x[1])*(x[4]-x[3]))
+@test spechtpolynomial(λ, x[[1:3; 5; 4]]) ≈ [0 1 0 0 0;
+                                                1 0 0 0 0;
+                                                0 0 0 1 0;
+                                                0 0 1 0 0;
+                                                1 -1 0 0 1] * spechtpolynomial(λ, x)
+
+
+spechgens = ([-1  0 0 0 0;
+            0 -1 0 0 0;
+            -1  0 1 0 0;
+            0 -1 0 1 0;
+            1 -1 0 0 1],
+            [0 0 1 0 0;
+            0 0 0 1 0;
+            1 0 0 0 0;
+            0 1 0 0 0
+            1 0 -1 0 1],
+            [-1 0 0 0 0;
+            -1 1 0 0 0;
+            -1 0 1 0 0;
+            0 0 0 0 1;
+            0 0 0 1 0],
+            [0 1 0 0 0;
+            1 0 0 0 0;
+            0 0 0 1 0;
+            0 0 1 0 0;
+            1 -1 0 0 1])
+
+
+ρ = Representation(λ)
+
+V = reshape(vec(nullspace([kron(spechgens[1]', I(5)) - kron(I(5), ρ.generators[1]);
+    kron(spechgens[2]', I(5)) - kron(I(5), ρ.generators[2]);
+    kron(spechgens[3]', I(5)) - kron(I(5), ρ.generators[3]);
+    kron(spechgens[4]', I(5)) - kron(I(5), ρ.generators[4])
+    ])), 5, 5)
+
+for (σ,ρ) in zip(spechgens, ρ.generators)
+    @test V*σ ≈ ρ*V
+end
+
+q = x -> V*spechtpolynomial(λ, x)
+for k = 1:n-1
+    @test q(x[[1:k-1; k+1; k; k+2:n]]) ≈ ρ.generators[k] * q(x)
+end
+
+sign.(YoungMatrix.(youngtableaux(λ)))*q(x)
+
+
 @test q(x[[1; 3; 2; 4:n]]) ≈ ρ.generators[2] * q(x)
 
 
