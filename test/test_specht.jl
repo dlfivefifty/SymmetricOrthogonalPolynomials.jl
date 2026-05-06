@@ -73,7 +73,7 @@ x = randn(n)
                                                 0 1 0 0 0
                                                 1 0 -1 0 1] * spechtpolynomial(λ, x)
 
-                                        
+
 @test spechtpolynomial(λ, x[[1; 2; 4; 3; 5:n]]) ≈ [-1 0 0 0 0;
                                                 -1 1 0 0 0;
                                                 -1 0 1 0 0;
@@ -131,17 +131,88 @@ for k = 1:n-1
     @test q(x[[1:k-1; k+1; k; k+2:n]]) ≈ ρ.generators[k] * q(x)
 end
 
-sign.(YoungMatrix.(youngtableaux(λ)))*q(x)
+
+
+###
+# transpose
+####
+
+@polyvar x[1:n]
+@test spechtpolynomial(λ',x) ≈ [
+(x[2]-x[1])*(x[3]-x[1])*(x[3]-x[2])*(x[5]-x[4])
+(x[2]-x[1])*(x[4]-x[1])*(x[4]-x[2])*(x[5]-x[3])
+(x[2]-x[1])*(x[5]-x[1])*(x[5]-x[2])*(x[4]-x[3])
+(x[3]-x[1])*(x[4]-x[1])*(x[4]-x[3])*(x[5]-x[2])
+(x[3]-x[1])*(x[5]-x[1])*(x[5]-x[3])*(x[4]-x[2])
+]
+
+[coefficient.(basis_polys, m) for m in monomials_of_interest]
+
+@polyvar x[1:n]
+spechgenstrans =  ([-1 0 0 1 -1; 0 -1 0 -1 0; 0 0 -1 0 -1; 0 0 0 1 0; 0 0 0 0 1]',
+                    [-1 0 0 0 0; 0 0 0 1 0; 0 0 0 0 1; 0 1 0 0 0; 0 0 1 0 0],
+                    [0 1 0 0 0; 1 0 0 0 0; 0 0 -1 0 0; 0 0 0 -1 0; -1 1 -1 -1 1],
+                    [-1 0 0 0 0; 0 0 1 0 0; 0 1 0 0 0; 0 0 0 0 1; 0 0 0 1 0])
+@test (hcat(coefficients.(spechtpolynomial(λ', x[[2;1;3:n]]), Ref(monomials(x, 4)))...)\
+    hcat(coefficients.(spechtpolynomial(λ', x), Ref(monomials(x, 4)))...))' ≈ spechgenstrans[1]
+@test (hcat(coefficients.(spechtpolynomial(λ', x[[1; 3; 2; 4:n]]), Ref(monomials(x, 4)))...)\
+    hcat(coefficients.(spechtpolynomial(λ', x), Ref(monomials(x, 4)))...))' ≈ spechgenstrans[2]
+@test (hcat(coefficients.(spechtpolynomial(λ', x[[1; 2; 4; 3; 5:n]]), Ref(monomials(x, 4)))...)\
+    hcat(coefficients.(spechtpolynomial(λ', x), Ref(monomials(x, 4)))...))' ≈ spechgenstrans[3]
+@test (hcat(coefficients.(spechtpolynomial(λ', x[[1:3; 5; 4]]), Ref(monomials(x, 4)))...)\
+    hcat(coefficients.(spechtpolynomial(λ', x), Ref(monomials(x, 4)))...))' ≈ spechgenstrans[4]
+    
+
+x = randn(n)
+@test spechtpolynomial(λ', x[[2;1;3:n]]) ≈ spechgenstrans[1] * spechtpolynomial(λ', x)
+@test spechtpolynomial(λ', x[[1; 3; 2; 4:n]]) ≈ spechgenstrans[2] * spechtpolynomial(λ', x)
+@test spechtpolynomial(λ', x[[1; 2; 4; 3; 5:n]]) ≈ spechgenstrans[3] * spechtpolynomial(λ', x)
+@test spechtpolynomial(λ', x[[1:3; 5; 4]]) ≈ spechgenstrans[4] * spechtpolynomial(λ', x)
+
+
+ρt = Representation(λ')
+
+Vt = reshape(vec(nullspace([kron(spechgenstrans[1]', I(5)) - kron(I(5), ρt.generators[1]);
+    kron(spechgenstrans[2]', I(5)) - kron(I(5), ρt.generators[2]);
+    kron(spechgenstrans[3]', I(5)) - kron(I(5), ρt.generators[3]);
+    kron(spechgenstrans[4]', I(5)) - kron(I(5), ρt.generators[4])
+    ])), 5, 5)
+
+for (σ,ρ) in zip(spechgenstrans, ρt.generators)
+    @test Vt*σ ≈ ρ*Vt
+end
+
+qt = x -> Vt*spechtpolynomial(λ', x)
+for k = 1:n-1
+    @test qt(x[[1:k-1; k+1; k; k+2:n]]) ≈ ρt.generators[k] * qt(x)
+end
+
+
+@test transpose.(YoungMatrix.(youngtableaux(λ))) == YoungMatrix.(youngtableaux(λ'))[end:-1:1]
+
+
+####
+# a fermion
+
+y = randn(5)
+f = (x,y) -> qt(x)'*Diagonal(sign.(YoungMatrix.(youngtableaux(λ))))[end:-1:1,:]*q(y)
+
+@test f(x[[2;1; 3:n]], y[[2;1; 3:n]]) ≈ -f(x,y)
+@test f(x[[2:n; 1]], y[[2:n; 1]]) ≈ f(x,y)
+
+Vt'*Diagonal(sign.(YoungMatrix.(youngtableaux(λ))))[end:-1:1,:]*V
 
 
 @test q(x[[1; 3; 2; 4:n]]) ≈ ρ.generators[2] * q(x)
+
+
 
 
 yt = youngtableaux(Partition(3,1,1))[1]
 
 @test spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), x) ≈ -spechtpolynomial(only(youngtableaux(Partition(1,1,1,1,1))), [x[2]; x[1]; x[3:end]])
 
-yms = 
+yms =
 sum(sign(ym)*spechtpolynomial(ym, x)spechtpolynomial(ym', y) for ym in yms)
 
 n = length(x)
@@ -233,7 +304,7 @@ q₂₊₁ =Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * [p₁₊₁..., p₂]
 @test all(q₂₊₁ .≈ [sqrt(3)/2 * (x[2]-x[1]);
         x[3]-x[1]/2-x[2]/2])
 @test all(q₂₊₁ .≈ V\p₂₊₁)
-@test all(subs(q₂₊₁, x[2]=>x[1], x[1]=>x[2]) .≈ 
+@test all(subs(q₂₊₁, x[2]=>x[1], x[1]=>x[2]) .≈
             Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * subs([p₁₊₁..., p₂], x[2]=>x[1], x[1]=>x[2]) .≈
             Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * blockdiag(ρ₁₊₁(τ₁), ρ₂(τ₁)) * [p₁₊₁..., p₂] .≈
             ρ₂₊₁(τ₁)*q₂₊₁)
