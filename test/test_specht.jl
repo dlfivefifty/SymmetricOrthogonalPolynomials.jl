@@ -2,6 +2,8 @@ using NumericalRepresentationTheory, DynamicPolynomials, Permutations
 
 spechtpolynomial(yt::YoungMatrix, x) = prod(prod(prod(x[yt[ℓ,j]]-x[yt[k,j]] for ℓ=k+1:yt.columns[j]) for k = 1:yt.columns[j]-1; init=1) for j = 1:size(yt,2))
 spechtpolynomial(yt::YoungTableau, x) = spechtpolynomial(YoungMatrix(yt), x)
+spechtpolynomial(λ::Partition, x) = spechtpolynomial.(youngtableaux(λ), Ref(x))
+
 x = randn(5)
 y = randn(5)
 
@@ -22,6 +24,24 @@ y = randn(5)
 @test spechtpolynomial(youngtableaux(Partition(2,1,1))[3], x) == (x[3]-x[1])*(x[4]-x[1])*(x[4]-x[3])
 @test spechtpolynomial(youngtableaux(Partition(1,1,1,1))[1], x) ≈ (x[2]-x[1])*(x[3]-x[1])*(x[4]-x[1])*(x[3]-x[2])*(x[4]-x[2])*(x[4]-x[3])
 
+λ = Partition(2,1)
+n = Int(λ)
+x = randn(3)
+@test spechtpolynomial(λ, x[[2;1;3:n]]) ≈ [-1 0; -1 1] * spechtpolynomial(λ, x)
+@test spechtpolynomial(λ, x[[1; 3; 2; 4:n]]) ≈ [0 1; 1 0] * spechtpolynomial(λ, x)
+
+ρ = Representation(λ)
+
+V = reshape(vec(nullspace([kron([-1 0; -1 1]', I(2)) - kron(I(2), ρ.generators[1]);
+    kron([0 1; 1 0]', I(2)) - kron(I(2), ρ.generators[2])])), 2, 2)
+
+@test V*[-1 0; -1 1] ≈ ρ.generators[1]*V
+@test V*[0 1; 1 0] ≈ ρ.generators[2]*V
+
+q = x -> V*spechtpolynomial(λ, x)
+@test q(x[[2;1;3:n]]) ≈ ρ.generators[1] * q(x)
+@test q(x[[1; 3; 2; 4:n]]) ≈ ρ.generators[2] * q(x)
+
 
 yt = youngtableaux(Partition(3,1,1))[1]
 
@@ -33,6 +53,10 @@ sum(sign(ym)*spechtpolynomial(ym, x)spechtpolynomial(ym', y) for ym in yms)
 n = length(x)
 
 for λ in partitions(5)
+    @show λ
+    n = Int(λ)
+    x = randn(n)
+    y = randn(n)
     yms = YoungMatrix.(youngtableaux(λ))
     for k = 1:n-1
         τ₁ = [1:k-1; k+1; k; k+2:n]
