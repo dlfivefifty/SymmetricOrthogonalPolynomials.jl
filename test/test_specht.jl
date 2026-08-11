@@ -384,11 +384,20 @@ p₃ = x[4]-x[1] + x[4]-x[2] + x[4]-x[3] # [1 2 3; 4]
 # 2 = 2+2
 @polyvar c
 p₁ = (x[2]-x[1]) * (x[4]-x[3]) # [1 3; 2 4]
-p₂ = (x[4]-x[1] + x[4]-x[2]) + (x[4]-x[1] + x[4]-x[3]) + (x[4]-x[2] + x[4]-x[3])  # [1 2 4; 3]
+p₂ = 2*(x[3]-x[1])*(x[4]-x[2]) - p₁ #+p₁
 @test gelfand(p₁, 1) == -p₁
 @test gelfand(p₁, 2) == p₁
 @test gelfand(p₁, 3) == 0
 @test gelfand(p₂, 1) == p₂
 @test gelfand(p₂, 2) == -p₂
 @test gelfand(p₂, 3) == 0
+
+@test p₂ == (x[3]-x[2] + x[3]-x[1])*(x[4]+x[3]) - 2x[3]^2 + 2x[1]x[2]
+
+
+
+-1 == 2c
+
+
+
 
