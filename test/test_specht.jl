@@ -316,3 +316,79 @@ q₂₊₁ =Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * [p₁₊₁..., p₂]
 p₁₊₁₊₁ = p₁₊₁ * (x[1]-x[3]) * (x[2]-x[3])
 @test subs(p₁₊₁₊₁, x[2]=>x[1], x[1]=>x[2]) == ρ₁₊₁₊₁(τ₁)*p₁₊₁₊₁
 @test subs(p₁₊₁₊₁, x[3]=>x[2], x[2]=>x[3]) == ρ₁₊₁₊₁(τ₂)*p₁₊₁₊₁
+
+
+######
+# orthogonal
+######
+
+gelfand(p, m) = sum(subs(p, x[k] => x[m+1], x[m+1] => x[k]) for k=1:m)
+n = 2
+@polyvar x[1:n]
+
+
+
+# 2 = 2
+p = 1
+@test gelfand(p, 1) == p
+
+# 2 = 1+1
+p = x[2]-x[1]
+@test gelfand(p, 1) == -p
+
+
+n = 3
+@polyvar x[1:n]
+
+# 3 = 3
+p = 1
+@test gelfand(p, 1) == p
+@test gelfand(p, 2) == 2p
+
+# 2 = 2+1
+p₁ = x[2]-x[1]
+p₂ = x[3]-x[1] + x[3]-x[2]
+@test gelfand(p₁, 1) == -p₁
+@test gelfand(p₁, 2) == p₁
+@test gelfand(p₂, 1) == p₂
+@test gelfand(p₂, 2) == -p₂
+
+
+
+n = 4
+@polyvar x[1:n]
+
+# 4 = 4
+p = 1
+@test gelfand(p, 1) == p
+@test gelfand(p, 2) == 2p
+@test gelfand(p, 3) == 3p
+
+# 2 = 3+1
+p₁ = x[2]-x[1] # [1 3 4; 2 0 0]
+p₂ = x[3]-x[1] + x[3]-x[2] # [1 2 4; 3]
+p₃ = x[4]-x[1] + x[4]-x[2] + x[4]-x[3] # [1 2 3; 4]
+@test gelfand(p₁, 1) == -p₁
+@test gelfand(p₁, 2) == p₁
+@test gelfand(p₁, 3) == 2p₁
+@test gelfand(p₂, 1) == p₂
+@test gelfand(p₂, 2) == -p₂
+@test gelfand(p₂, 3) == 2p₂
+@test gelfand(p₃, 1) == p₃
+@test gelfand(p₃, 2) == 2p₃
+@test gelfand(p₃, 3) == -p₃
+
+
+
+
+# 2 = 2+2
+@polyvar c
+p₁ = (x[2]-x[1]) * (x[4]-x[3]) # [1 3; 2 4]
+p₂ = (x[4]-x[1] + x[4]-x[2]) + (x[4]-x[1] + x[4]-x[3]) + (x[4]-x[2] + x[4]-x[3])  # [1 2 4; 3]
+@test gelfand(p₁, 1) == -p₁
+@test gelfand(p₁, 2) == p₁
+@test gelfand(p₁, 3) == 0
+@test gelfand(p₂, 1) == p₂
+@test gelfand(p₂, 2) == -p₂
+@test gelfand(p₂, 3) == 0
+
