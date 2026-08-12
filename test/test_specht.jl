@@ -1,5 +1,11 @@
 using NumericalRepresentationTheory, DynamicPolynomials, Permutations
 
+gelfand(p, m) = sum(subs(p, x[k] => x[m+1], x[m+1] => x[k]) for k=1:m)
+
+####
+# classic specht
+####
+
 spechtpolynomial(yt::YoungMatrix, x) = prod(prod(prod(x[yt[ℓ,j]]-x[yt[k,j]] for ℓ=k+1:yt.columns[j]) for k = 1:yt.columns[j]-1; init=1) for j = 1:size(yt,2))
 spechtpolynomial(yt::YoungTableau, x) = spechtpolynomial(YoungMatrix(yt), x)
 spechtpolynomial(λ::Partition, x) = spechtpolynomial.(youngtableaux(λ), Ref(x))
@@ -264,8 +270,8 @@ n = 2
 
 p₂ = 1
 @test subs(p₂, x[2]=>x[1], x[1]=>x[2]) == p₂
-p₁₊₁ = [x[2]-x[1]]
-@test subs(p₁₊₁, x[2]=>x[1], x[1]=>x[2]) == -p₁₊₁
+p¹⁺¹ = [x[2]-x[1]]
+@test subs(p¹⁺¹, x[2]=>x[1], x[1]=>x[2]) == -p¹⁺¹
 
 
 # n = 3
@@ -300,104 +306,229 @@ V = [1 0;
 
 # orthogonal
 
-q₂₊₁ =Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * [p₁₊₁..., p₂]
+q₂₊₁ =Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * [p¹⁺¹..., p₂]
 @test all(q₂₊₁ .≈ [sqrt(3)/2 * (x[2]-x[1]);
         x[3]-x[1]/2-x[2]/2])
 @test all(q₂₊₁ .≈ V\p₂₊₁)
 @test all(subs(q₂₊₁, x[2]=>x[1], x[1]=>x[2]) .≈
-            Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * subs([p₁₊₁..., p₂], x[2]=>x[1], x[1]=>x[2]) .≈
-            Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * blockdiag(ρ₁₊₁(τ₁), ρ₂(τ₁)) * [p₁₊₁..., p₂] .≈
+            Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * subs([p¹⁺¹..., p₂], x[2]=>x[1], x[1]=>x[2]) .≈
+            Diagonal([sqrt(3)/2, x[3]-x[1]/2-x[2]/2]) * blockdiag(ρ₁₊₁(τ₁), ρ₂(τ₁)) * [p¹⁺¹..., p₂] .≈
             ρ₂₊₁(τ₁)*q₂₊₁)
 @test all(subs(q₂₊₁, x[2]=>x[3], x[3]=>x[2]) .≈ ρ₂₊₁(τ₂)*q₂₊₁)
 
 
 
 
-p₁₊₁₊₁ = p₁₊₁ * (x[1]-x[3]) * (x[2]-x[3])
-@test subs(p₁₊₁₊₁, x[2]=>x[1], x[1]=>x[2]) == ρ₁₊₁₊₁(τ₁)*p₁₊₁₊₁
-@test subs(p₁₊₁₊₁, x[3]=>x[2], x[2]=>x[3]) == ρ₁₊₁₊₁(τ₂)*p₁₊₁₊₁
+¹⁺¹⁺¹ = p¹⁺¹ * (x[1]-x[3]) * (x[2]-x[3])
+@test subs(¹⁺¹⁺¹, x[2]=>x[1], x[1]=>x[2]) == ρ₁₊₁₊₁(τ₁)*¹⁺¹⁺¹
+@test subs(¹⁺¹⁺¹, x[3]=>x[2], x[2]=>x[3]) == ρ₁₊₁₊₁(τ₂)*¹⁺¹⁺¹
 
 
 ######
 # orthogonal
 ######
 
-gelfand(p, m) = sum(subs(p, x[k] => x[m+1], x[m+1] => x[k]) for k=1:m)
-n = 2
+n = 5
 @polyvar x[1:n]
-
 
 
 # 2 = 2
-p = 1
-@test gelfand(p, 1) == p
+p² = 1
+@test gelfand(p², 1) == p²
 
 # 2 = 1+1
-p = x[2]-x[1]
-@test gelfand(p, 1) == -p
+p¹⁺¹ = x[2]-x[1]
+@test gelfand(p¹⁺¹, 1) == -p¹⁺¹
 
-
-n = 3
-@polyvar x[1:n]
 
 # 3 = 3
-p = 1
-@test gelfand(p, 1) == p
-@test gelfand(p, 2) == 2p
+p³ = p²
+@test gelfand(p³, 1) == p³
+@test gelfand(p³, 2) == 2p³
 
-# 2 = 2+1
-p₁ = x[2]-x[1]
-p₂ = x[3]-x[1] + x[3]-x[2]
-@test gelfand(p₁, 1) == -p₁
-@test gelfand(p₁, 2) == p₁
-@test gelfand(p₂, 1) == p₂
-@test gelfand(p₂, 2) == -p₂
+# 3 = 2+1
+p²⁺¹₁ = x[2]-x[1]
+p²⁺¹₂ = x[3]-x[1] + x[3]-x[2]
+@test gelfand(p²⁺¹₁, 1) == -p²⁺¹₁
+@test gelfand(p²⁺¹₁, 2) == p²⁺¹₁
+@test gelfand(p²⁺¹₂, 1) == p²⁺¹₂
+@test gelfand(p²⁺¹₂, 2) == -p²⁺¹₂
 
+p²⁺¹₁₂ = (x[2]-x[1])*x[3]          # [1 2; 3] , [1 3; 2]
+p²⁺¹₂₂ = (x[3]-x[1])*x[2] + (x[3]-x[2])*x[1]
+# (x[3]^2-x[1]^2 + x[3]^2-x[2]^2)    # [1 3; 2] , [1 3; 2]
 
+@test gelfand(p²⁺¹₁₂, 1) == -p²⁺¹₁₂
+@test gelfand(p²⁺¹₁₂, 2) == p²⁺¹₁₂
+@test gelfand(p²⁺¹₂₂, 1) == p²⁺¹₂₂
+@test gelfand(p²⁺¹₂₂, 2) == -p²⁺¹₂₂
 
-n = 4
-@polyvar x[1:n]
+# 3 = 1+1+1
+
+p¹⁺¹⁺¹ = p¹⁺¹ * (x[3]-x[1])*(x[3]-x[2])
+@test gelfand(p¹⁺¹⁺¹, 1) == -p¹⁺¹⁺¹
+@test gelfand(p¹⁺¹⁺¹, 2) == -2p¹⁺¹⁺¹
+
+####
+# n = 4
+####
 
 # 4 = 4
-p = 1
-@test gelfand(p, 1) == p
-@test gelfand(p, 2) == 2p
-@test gelfand(p, 3) == 3p
+p⁴ = p³
+@test gelfand(p⁴, 1) == p⁴
+@test gelfand(p⁴, 2) == 2p⁴
+@test gelfand(p⁴, 3) == 3p⁴
 
 # 2 = 3+1
-p₁ = x[2]-x[1] # [1 3 4; 2 0 0]
-p₂ = x[3]-x[1] + x[3]-x[2] # [1 2 4; 3]
-p₃ = x[4]-x[1] + x[4]-x[2] + x[4]-x[3] # [1 2 3; 4]
-@test gelfand(p₁, 1) == -p₁
-@test gelfand(p₁, 2) == p₁
-@test gelfand(p₁, 3) == 2p₁
-@test gelfand(p₂, 1) == p₂
-@test gelfand(p₂, 2) == -p₂
-@test gelfand(p₂, 3) == 2p₂
-@test gelfand(p₃, 1) == p₃
-@test gelfand(p₃, 2) == 2p₃
-@test gelfand(p₃, 3) == -p₃
+p³⁺¹₁ = p²⁺¹₁  # x[2]-x[1] # [1 3 4; 2 0 0]
+p³⁺¹₂ = p²⁺¹₂ # x[3]-x[1] + x[3]-x[2] # [1 2 4; 3]
+p³⁺¹₃ = x[4]-x[1] + x[4]-x[2] + x[4]-x[3] # [1 2 3; 4]
+@test gelfand(p³⁺¹₁, 1) == -p³⁺¹₁
+@test gelfand(p³⁺¹₁, 2) == p³⁺¹₁
+@test gelfand(p³⁺¹₁, 3) == 2p³⁺¹₁
+@test gelfand(p³⁺¹₂, 1) == p³⁺¹₂
+@test gelfand(p³⁺¹₂, 2) == -p³⁺¹₂
+@test gelfand(p³⁺¹₂, 3) == 2p³⁺¹₂
+@test gelfand(p³⁺¹₃, 1) == p³⁺¹₃
+@test gelfand(p³⁺¹₃, 2) == 2p³⁺¹₃
+@test gelfand(p³⁺¹₃, 3) == -p³⁺¹₃
 
 
 
 
-# 2 = 2+2
-@polyvar c
-p₁ = (x[2]-x[1]) * (x[4]-x[3]) # [1 3; 2 4]
-p₂ = 2*(x[3]-x[1])*(x[4]-x[2]) - p₁ #+p₁
-@test gelfand(p₁, 1) == -p₁
-@test gelfand(p₁, 2) == p₁
-@test gelfand(p₁, 3) == 0
-@test gelfand(p₂, 1) == p₂
-@test gelfand(p₂, 2) == -p₂
-@test gelfand(p₂, 3) == 0
+# 4 = 2+2
 
-@test p₂ == (x[3]-x[2] + x[3]-x[1])*(x[4]+x[3]) - 2x[3]^2 + 2x[1]x[2]
+p²⁺²₁ = p²⁺¹₁*x[4] - p²⁺¹₁₂  # (x[2]-x[1]) * (x[4]-x[3]) # [1 3; 2 4]
+p²⁺²₂ = p²⁺¹₂*x[4] - p²⁺¹₂₂  # 2*(x[3]-x[1])*(x[4]-x[2]) - p²⁺²₁ #+p²⁺²₁
+@test gelfand(p²⁺²₁, 1) == -p²⁺²₁
+@test gelfand(p²⁺²₁, 2) == p²⁺²₁
+@test gelfand(p²⁺²₁, 3) == 0
+@test gelfand(p²⁺²₂, 1) == p²⁺²₂
+@test gelfand(p²⁺²₂, 2) == -p²⁺²₂
+@test gelfand(p²⁺²₂, 3) == 0
 
 
 
--1 == 2c
+@test gelfand(p²⁺¹₁*x[4], 3) == p²⁺¹₁*x[4] + p²⁺¹₁₂
+@test gelfand(p²⁺¹₁₂, 3) == p²⁺¹₁*x[4] + p²⁺¹₁₂
+
+
+# 4 = 2+1+1
+
+p²⁺¹⁺¹₁ = p²⁺¹₁*(3x[4]*(x[1]+x[2]+x[3]-x[4])-2*(x[1]x[2]+x[1]x[3]+x[2]x[3])) - p²⁺¹₁₂*(x[4]-x[1] + x[4]-x[2] +x[4]-x[3]) # [1 3; 2; 4]
+p²⁺¹⁺¹₂ = p²⁺¹₂*(3x[4]*(x[1]+x[2]+x[3]-x[4])-2*(x[1]x[2]+x[1]x[3]+x[2]x[3])) - p²⁺¹₂₂*(x[4]-x[1] + x[4]-x[2] +x[4]-x[3]) # [1 2; 3; 4]
+p²⁺¹⁺¹₃ = p¹⁺¹⁺¹  # [1 4 ; 2; 3]
+
+
+# (x[4]-x[2])*(x[4]-x[1])*(x[2]-x[1])
+# (x[4]-x[3])*(x[4]-x[1])*(x[3]-x[1])
+
+
+x[4]-x[1] + x[4]-x[2] + x[4]-x[3] # [1 2; 3; 4]
+
+
+@test gelfand(p²⁺¹⁺¹₁, 1) == -p²⁺¹⁺¹₁
+@test gelfand(p²⁺¹⁺¹₁, 2) == p²⁺¹⁺¹₁
+@test gelfand(p²⁺¹⁺¹₁, 3) == -2p²⁺¹⁺¹₁
+
+@test gelfand(p²⁺¹⁺¹₂, 1) == p²⁺¹⁺¹₂
+@test gelfand(p²⁺¹⁺¹₂, 2) == -p²⁺¹⁺¹₂
+@test gelfand(p²⁺¹⁺¹₂, 3) == -2p²⁺¹⁺¹₂
+
+@test gelfand(p²⁺¹⁺¹₃, 1) == -p²⁺¹⁺¹₃
+@test gelfand(p²⁺¹⁺¹₃, 2) == -2p²⁺¹⁺¹₃
+@test gelfand(p²⁺¹⁺¹₃, 3) == p²⁺¹⁺¹₃
+
+p¹⁺¹⁺¹⁺¹ = p¹⁺¹⁺¹ * (x[4]-x[1])*(x[4]-x[2])*(x[4]-x[3])
+
+@test gelfand(p¹⁺¹⁺¹⁺¹, 1) == -p¹⁺¹⁺¹⁺¹
+@test gelfand(p¹⁺¹⁺¹⁺¹, 2) == -2p¹⁺¹⁺¹⁺¹
+@test gelfand(p¹⁺¹⁺¹⁺¹, 3) == -3p¹⁺¹⁺¹⁺¹
+
+
+
+# derivation
+# @test gelfand(p³₁*x[4]^2, 3) == 
+
+@polyvar a[1:5]
+
+q = -3*(x[4]-x[2])*(x[4]-x[1])*(x[2]-x[1]) + (x[3]-x[2])*(x[3]-x[1])*(x[2]-x[1]) # + a[3]*(x[4]-x[3])*(x[4]-x[1])*(x[3]-x[1])
+
+
+@test q == p³₁₂*(x[3]-x[2]-x[1]) + p³₁ * (3*x[4]*(x[2]+x[1]-x[4]) - 2x[1]x[2])
+
+
+@test gelfand(q, 1) == -q
+@test gelfand(q, 2) == q
+@test gelfand(q, 3) == -2q
+
+@test q == -3p³₁*x[4]^2 + 3p³₁*x[4]*(x[1]+x[2]+x[3]) - 3p³₁₂*x[4] + p³₁₂*(x[1]+x[2]+x[3]) - p³₁*(x[1]+x[2]+x[3])^2 + p³₁*(x[1]^2+x[2]^2+x[3]^2)
+@test q == p³₁*(3x[4]*(x[1]+x[2]+x[3]-x[4])-2*(x[1]x[2]+x[1]x[3]+x[2]x[3])) - p³₁₂*(x[4]-x[1] + x[4]-x[2] +x[4]-x[3])
+
+3gelfand(p³₁*(3x[4]*(x[1]+x[2]+x[3]-x[4])-2*(x[1]x[2]+x[1]x[3]+x[2]x[3])),3) - 
+(-5p³₁*(3x[4]*(x[1]+x[2]+x[3]-x[4])-2*(x[1]x[2]+x[1]x[3]+x[2]x[3])))
+
+11p³₁₂*(x[4]-x[1] + x[4]-x[2] +x[4]-x[3])
+
+
+
+3x[4]*(x[1]+x[2]+x[3]-x[4])-2*(x[1]x[2]+x[1]x[3]+x[2]x[3]) + 
+    ((x[4]-x[1])*(x[4]-x[2]) + (x[4]-x[1])*(x[4]-x[3]) + (x[4]-x[2])*(x[4]-x[3]))
+
+(x[4]-x[2])*(x[3] - x[1])
+
+(x[4]-x[1])*(x[4]-x[2]) + (x[4]-x[1])*(x[4]-x[3]) + (x[4]-x[2])*(x[4]-x[3]) + (x[1]-x[2])*(x[1]-x[3])  + (x[2]-x[1])*(x[2]-x[3]) +  (x[3]-x[1])*(x[3]-x[2])
+
+
+
++x[2]+x[3])
+x[3]*x[1]
 
 
 
 
+gelfand(p³₂*x[4]^2, 3)
+gelfand(p³₂*x[4]*(x[1]+x[2]+x[3]), 3)
+gelfand(p³₂*(x[1]+x[2]+x[3])^2, 3)
+gelfand(p³₂*(x[1]^2+x[2]^2+x[3]^2), 3)
+gelfand(p³₂₂*x[4], 3)
+gelfand(p³₂₂*(x[1]+x[2]+x[3]), 3)
+
+
+
+
+ gelfand(p³₁*x[4]^2, 3) # -p³₁*x[4]^2
+p³₁₂ * x[4]
+@test gelfand(p³₁₂, 3) == p³₁*x[4] + p³₁₂
+@test gelfand(p³₁*(x[1]+x[2]+x[3]+x[4]), 3) == 2p³₁*(x[1]+x[2]+x[3]+x[4])
+
+@polyvar c d
+
+c = -1; d = -1/2
+gelfand(p³₁₂+c*p³₁*x[4]+d*p³₁*(x[1]+x[2]+x[3]+x[4]), 3) + 2*(p³₁₂+c*p³₁*x[4]+d*p³₁*(x[1]+x[2]+x[3]+x[4]))
+
+# 1-4d+3c == 0
+# 3+4d+c == 0
+
+@test gelfand(p³₁₂+p³₁*x[4], 3) == 2*(p³₁*x[4] + p³₁₂)
+
+
+#####
+# n = 5
+#####
+
+p⁵ = p⁴
+@test gelfand(p⁵, 1) == p⁵
+@test gelfand(p⁵, 2) == 2p⁵
+@test gelfand(p⁵, 3) == 3p⁵
+@test gelfand(p⁵, 4) == 4p⁵
+
+# [1 3 4 5; 2]
+p³⁺¹₁
+
+# [1 2 3 4; 5]
+p⁴⁺¹₁ = sum(x[5]-x[k] for k = 1:4)
+@test gelfand(p⁴⁺¹₁, 1) == p⁴⁺¹₁
+@test gelfand(p⁴⁺¹₁, 2) == 2p⁴⁺¹₁
+@test gelfand(p⁴⁺¹₁, 3) == 3p⁴⁺¹₁
+@test gelfand(p⁴⁺¹₁, 4) == -p⁴⁺¹₁
