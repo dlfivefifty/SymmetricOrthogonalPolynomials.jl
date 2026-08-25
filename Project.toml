@@ -1,7 +1,7 @@
 name = "SymmetricOrthogonalPolynomials"
 uuid = "fc9a72a9-1ea7-43f9-8932-c79acf841176"
-authors = ["Sheehan Olver <solver@mac.com>"]
 version = "0.1.0"
+authors = ["Sheehan Olver <solver@mac.com>"]
 
 [deps]
 ArrayLayouts = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
@@ -19,7 +19,9 @@ LazyArrays = "5078a376-72f3-5289-bfd5-ec5146d43c02"
 LazyBandedMatrices = "d7e5e226-e90b-4449-9968-0f923699bf6f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MultivariateOrthogonalPolynomials = "4f6956fd-4f93-5457-9149-7bfc4b2ce06d"
+MultivariatePolynomials = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3"
 NumericalRepresentationTheory = "6b7c1d51-ecee-4149-97a8-50646b514dce"
+Permutations = "2ae35dd2-176d-5d53-8349-f30d82d94d4f"
 QuasiArrays = "c4ea9172-b204-11e9-377d-29865faadc5c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
@@ -33,5 +35,7 @@ IntervalSets = "0.7.10"
 LazyArrays = "2.3.1"
 LazyBandedMatrices = "0.11.3"
 LinearAlgebra = "1.11.0"
+MultivariatePolynomials = "0.5.19"
+Permutations = "0.4.23"
 QuasiArrays = "0.12"
 StaticArrays = "1.9.10"
