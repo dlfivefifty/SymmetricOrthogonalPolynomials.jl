@@ -36,7 +36,7 @@ p²⁺¹₂₂ = B₃    # [1 2; 3] , [1 3; 2]
 
 
 A₄ = -(x[4]-x[1] + x[4]-x[2] + x[4]-x[3])
-B₄ = -9x[4]^2 + 6x[4]*(x[1]+x[2]+x[3]) - 2*(x[1]+x[2]+x[3])^2 + 3*(x[1]^2+x[2]^2+x[3]^2)
+B₄ =  (x[1]-x[2])^2 + (x[1]-x[3])^2 + (x[2]-x[3])^2 - A₄^2 #-9x[4]^2 + 6x[4]*(x[1]+x[2]+x[3]) - 2*(x[1]+x[2]+x[3])^2 + 3*(x[1]^2+x[2]^2+x[3]^2)
 C₄ = -3x[4]^3 + 3x[3]x[4]^2 + x[3]^2*x[4] + x[3]^3 + 3x[2]x[4]^2 - 4x[2]x[3]x[4] - 2x[2]x[3]^2 + x[2]^2*x[4] - 2x[2]^2*x[3] + x[2]^3 + 3x[1]x[4]^2 - 4x[1]x[3]x[4] - 2x[1]x[3]^2 - 4x[1]x[2]x[4] + 12x[1]x[2]x[3] - 2x[1]x[2]^2 + x[1]^2*x[4] - 2x[1]^2*x[3] - 2x[1]^2*x[2] + x[1]^3
 D₄ = 6x[4]^2 - 4x[3]x[4] - x[3]^2 - 4x[2]x[4] + 3x[2]x[3] - x[2]^2 - 4x[1]x[4] + 3x[1]x[3] + 3x[1]x[2] - x[1]^2
 E₄ = -9x[4]^2 + 6x[3]x[4] - x[3]^2 + 6x[2]x[4] - 2x[2]x[3] - x[2]^2 + 6x[1]x[4] - 2x[1]x[3] - 2x[1]x[2] - x[1]^2
@@ -46,7 +46,7 @@ H₄ = prod(x[4] .- x[1:3])
 I₄ = 6x[4]^3 - 6x[3]x[4]^2 - 6x[3]^2*x[4] - 2x[3]^3 - 6x[2]x[4]^2 + 12x[2]x[3]x[4] + 6x[2]x[3]^2 - 6x[2]^2*x[4] + 6x[2]^2*x[3] - 2x[2]^3 - 6x[1]x[4]^2 + 12x[1]x[3]x[4] + 6x[1]x[3]^2 + 12x[1]x[2]x[4]- 36x[1]x[2]x[3] + 6x[1]x[2]^2 - 6x[1]^2*x[4] + 6x[1]^2*x[3] + 6x[1]^2*x[2] - 2x[1]^3
 J₄ = -9x[4]^3 + 9x[3]x[4]^2 + 2x[3]^2*x[4] + 9x[2]x[4]^2 - 11x[2]x[3]x[4] - x[2]x[3]^2 + 2x[2]^2*x[4] - x[2]^2*x[3] + 9x[1]x[4]^2 - 11x[1]x[3]x[4] - x[1]x[3]^2 - 11x[1]x[2]x[4] + 15x[1]x[2]x[3] - x[1]x[2]^2 + 2x[1]^2*x[4] - x[1]^2*x[3] - x[1]^2*x[2]
 K₄ = -2x[3]^3*x[4] + 3x[2]x[3]^2*x[4] + x[2]x[3]^3 + 3x[2]^2*x[3]x[4] - 4x[2]^2*x[3]^2 - 2x[2]^3*x[4] + x[2]^3*x[3] + 3x[1]x[3]^2*x[4] + x[1]x[3]^3 - 12x[1]x[2]x[3]x[4] + 2x[1]x[2]x[3]^2 + 3x[1]x[2]^2*x[4] + 2x[1]x[2]^2*x[3] + x[1]x[2]^3 + 3x[1]^2*x[3]x[4] - 4x[1]^2*x[3]^2 + 3x[1]^2*x[2]x[4] + 2x[1]^2*x[2]x[3] - 4x[1]^2*x[2]^2 - 2x[1]^3*x[4] + x[1]^3*x[3] + x[1]^3*x[2]
-L₄ = -3x[4]^2 + 2x[3]x[4] + 2x[2]x[4] - x[2]x[3] + 2x[1]x[4] - x[1]x[3] - x[1]x[2]
+L₄ = (x[1]-x[4])*(x[2]-x[4]) + (x[1]-x[4])*(x[3]-x[4]) + (x[2]-x[4])*(x[3]-x[4])
 
 
 p⁴ = p³
@@ -79,6 +79,10 @@ p²⁺¹⁺¹₃₃ = L₄*p¹⁺¹⁺¹
 
 # n = 5
 A₅ = sum( x[1:4] .- x[5])
+B₅  =  (x[1]-x[2])^2 + (x[1]-x[3])^2 + (x[1]-x[4])^2 + (x[2]-x[3])^2 + (x[2]-x[4])^2 + (x[3]-x[4])^2 - A₅^2
+G₅ = x[1]^2+x[2]^2+x[3]^2+x[4]^2 - 4x[5]^2 + (3*(x[1]+x[2]+x[3]+x[4])x[5] + 2 * (  - x[2]x[3] - x[1]x[3] - x[1]x[2] - x[1]x[4] - x[2]x[4] - x[3]x[4]))
+H₅ = prod(x[5] .- x[1:4])
+L₅ = (x[1]-x[5])*(x[2]-x[5]) + (x[1]-x[5])*(x[3]-x[5]) + (x[1]-x[5])*(x[4]-x[5]) + (x[2]-x[5])*(x[3]-x[5]) + (x[2]-x[5])*(x[4]-x[5]) + (x[3]-x[5])*(x[4]-x[5])
 
 p⁵ = p⁴
 p⁴⁺¹₁ = p³⁺¹₁ # [1 3 4 5; 2]
@@ -90,11 +94,24 @@ p³⁺²₂ = p²⁺²₂ # [1 2 5; 3 4]
 p³⁺²₃ = -3p³⁺¹₁*A₅ + p³⁺¹₁₂  # [1 3 4; 2 5]
 p³⁺²₄ = -3p³⁺¹₂*A₅ + p³⁺¹₂₂ # [1 2 4; 3 5]
 p³⁺²₅ = p³⁺¹₃*A₅ - p³⁺¹₃₂ # [1 2 3; 4 5]
+p³⁺¹⁺¹₁ = 3p³⁺¹₁*B₅ - 2p³⁺¹₁₂*A₅
+p³⁺¹⁺¹₂ = 3p³⁺¹₂*B₅ - 2p³⁺¹₂₂*A₅
+p³⁺¹⁺¹₃ = p³⁺¹₃*B₅ - 2p³⁺¹₃₂*A₅
+p²⁺¹⁺¹⁺¹₄ = p¹⁺¹⁺¹⁺¹
+p¹⁺¹⁺¹⁺¹⁺¹ = Δ⁵ = p¹⁺¹⁺¹⁺¹ * H₅
 
+p⁴⁺¹₁₂ = 6A₅*p³⁺¹₁ + 10p³⁺¹₁₂
+p⁴⁺¹₂₂ = 6A₅*p³⁺¹₂ + 10p³⁺¹₂₂
+p⁴⁺¹₄₂ = G₅
+p²⁺¹⁺¹⁺¹₄₂ = p¹⁺¹⁺¹⁺¹*A₅
+p²⁺¹⁺¹⁺¹₄₃ = p¹⁺¹⁺¹⁺¹*L₅
+
+p⁴⁺¹₁₃ = 3*p³⁺¹₁*B₅ + 6 * p³⁺¹₁₂*A₅ + 4p³⁺¹₁₃
+p⁴⁺¹₂₃ = 3*p³⁺¹₂*B₅ + 6 * p³⁺¹₂₂*A₅ + 4p³⁺¹₂₃
 
 
 ####
-# content vector
+# content vectors
 ####
 
 @test contentvectorequals(p², x, [1])
@@ -107,6 +124,7 @@ p³⁺²₅ = p³⁺¹₃*A₅ - p³⁺¹₃₂ # [1 2 3; 4 5]
 @test contentvectorequals(p¹⁺¹⁺¹, x, [-1,-2])
 
 @test contentvectorequals(p⁴, x, [1,2,3])
+
 @test contentvectorequals(p³⁺¹₁, x, [-1,1,2])
 @test contentvectorequals(p³⁺¹₂, x, [1,-1,2])
 @test contentvectorequals(p³⁺¹₃, x, [1,2,-1])
@@ -116,11 +134,11 @@ p³⁺²₅ = p³⁺¹₃*A₅ - p³⁺¹₃₂ # [1 2 3; 4 5]
 @test contentvectorequals(p³⁺¹₁₃, x, [-1,1,2])
 @test contentvectorequals(p³⁺¹₂₃, x, [1,-1,2])
 @test contentvectorequals(p³⁺¹₃₃, x, [1,2,-1])
+
 @test contentvectorequals(p²⁺²₁, x, [-1,1,0])
 @test contentvectorequals(p²⁺²₂, x, [1,-1,0])
 @test contentvectorequals(p²⁺²₁₂, x, [-1,1,0])
 @test contentvectorequals(p²⁺²₂₂, x, [1,-1,0])
-
 
 @test contentvectorequals(p²⁺¹⁺¹₁, x, [-1,1,-2])
 @test contentvectorequals(p²⁺¹⁺¹₂, x, [1,-1,-2])
@@ -132,10 +150,38 @@ p³⁺²₅ = p³⁺¹₃*A₅ - p³⁺¹₃₂ # [1 2 3; 4 5]
 @test contentvectorequals(p²⁺¹⁺¹₂₃, x, [1,-1,-2])
 @test contentvectorequals(p²⁺¹⁺¹₃₃, x, [-1,-2,1])
 
+@test contentvectorequals(p¹⁺¹⁺¹⁺¹, x, [-1,-2,-3])
+
+@test contentvectorequals(p⁵, x, [1,2,3,4])
+
+@test contentvectorequals(p⁴⁺¹₁, x, [-1,1,2,3])
+@test contentvectorequals(p⁴⁺¹₂, x, [1,-1,2,3])
+@test contentvectorequals(p⁴⁺¹₃, x, [1,2,-1,3])
+@test contentvectorequals(p⁴⁺¹₄, x, [1,2,3,-1])
+@test contentvectorequals(p⁴⁺¹₁₂, x, [-1,1,2,3])
+@test contentvectorequals(p⁴⁺¹₂₂, x, [1,-1,2,3])
+@test contentvectorequals(p⁴⁺¹₄₂, x, [1,2,3,-1])
+@test contentvectorequals(p⁴⁺¹₁₃, x, [-1,1,2,3])
+@test contentvectorequals(p⁴⁺¹₂₃, x, [1,-1,2,3])
+
+@test contentvectorequals(p³⁺²₁, x, [-1,1,0,2])
+@test contentvectorequals(p³⁺²₂, x, [1,-1,0,2])
+@test contentvectorequals(p³⁺²₃, x, [-1,1,2,0])
+@test contentvectorequals(p³⁺²₄, x, [1,-1,2,0])
+@test contentvectorequals(p³⁺²₅, x, [1,2,-1,0])
+@test contentvectorequals(p³⁺¹⁺¹₁, x, [-1,1,2,-2])
+@test contentvectorequals(p³⁺¹⁺¹₂, x, [1,-1,2,-2])
+@test contentvectorequals(p³⁺¹⁺¹₃, x, [1,2,-1,-2])
+
+@test contentvectorequals(p²⁺¹⁺¹⁺¹₄, x, [-1,-2,-3,1])
+@test contentvectorequals(p²⁺¹⁺¹⁺¹₄₂, x, [-1,-2,-3,1])
+@test contentvectorequals(p²⁺¹⁺¹⁺¹₄₃, x, [-1,-2,-3,1])
+
+@test contentvectorequals(p¹⁺¹⁺¹⁺¹⁺¹, x, [-1,-2,-3,-4])
 
 
 #####
-# PDE
+# PDEs
 ####
 
 @test all(iszero, [laplacian(p², x[1:2], k) for k=1:2])
@@ -163,6 +209,10 @@ end
 
 for p in (p²⁺¹⁺¹₁,p²⁺¹⁺¹₂,p²⁺¹⁺¹₃,p²⁺¹⁺¹₁₂,p²⁺¹⁺¹₂₂,p²⁺¹⁺¹₃₂,p²⁺¹⁺¹₁₃,p²⁺¹⁺¹₂₃,p²⁺¹⁺¹₃₃)
     @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
+end
+
+for p in (p⁵,p⁴⁺¹₁,p⁴⁺¹₂,p⁴⁺¹₃,p⁴⁺¹₄,p³⁺²₁,p³⁺²₂,p³⁺²₃,p³⁺²₄,p³⁺²₅,p³⁺¹⁺¹₁,p³⁺¹⁺¹₂,p³⁺¹⁺¹₃,p²⁺¹⁺¹⁺¹₄,p¹⁺¹⁺¹⁺¹⁺¹,p⁴⁺¹₁₂,p⁴⁺¹₂₂,p²⁺¹⁺¹⁺¹₄₂,p⁴⁺¹₁₃,p⁴⁺¹₂₃,p²⁺¹⁺¹⁺¹₄₃)
+    @test all(iszero, [laplacian(p, x[1:5], k) for k=1:5])
 end
 
 #######
@@ -437,26 +487,19 @@ gelfand(p³₁₂+c*p³₁*x[4]+d*p³₁*(x[1]+x[2]+x[3]+x[4]), 3) + 2*(p³₁�
 #####
 
 p⁵ = p⁴
-@test gelfand(p⁵, 1) == p⁵
-@test gelfand(p⁵, 2) == 2p⁵
-@test gelfand(p⁵, 3) == 3p⁵
-@test gelfand(p⁵, 4) == 4p⁵
 
 # [1 3 4 5; 2]
 p³⁺¹₁
 
 # [1 2 3 4; 5]
 p⁴⁺¹₁ = sum(x[5]-x[k] for k = 1:4)
-@test gelfand(p⁴⁺¹₁, 1) == p⁴⁺¹₁
-@test gelfand(p⁴⁺¹₁, 2) == 2p⁴⁺¹₁
-@test gelfand(p⁴⁺¹₁, 3) == 3p⁴⁺¹₁
-@test gelfand(p⁴⁺¹₁, 4) == -p⁴⁺¹₁
 
 
 # n = 5
 ####
 
 # 5 = 5
+
 
 @test gelfand(p⁵, x, 1) == p⁵
 @test gelfand(p⁵, x, 2) == 2p⁵
@@ -536,3 +579,29 @@ end
 # for p in (p³⁺¹₁,p³⁺¹₂,p³⁺¹₃,p³⁺¹₁₂,p³⁺¹₂₂,p³⁺¹₃₂,p³⁺¹₁₃,p³⁺¹₂₃,p³⁺¹₃₃)
 #     @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
 # end
+
+
+####
+# simplify b
+###
+
+@test (x[1]-x[2])^2  - A₃^2 == -4C₃
+@test (x[1]-x[2])^2 + (x[1]-x[3])^2 + (x[2]-x[3])^2 - A₄^2 == B₄
+
+
+p²⁺²⁺¹₁ = p²⁺²₁
+@polyvar α[1:2]
+p²⁺¹⁺¹⁺¹₁ = α[1]p²⁺¹⁺¹₁*B₅ + α[2]A₅*p²⁺¹⁺¹₁₂
+
+[-1,1,2,3]
+@test gelfand(G₅, x, 1) == G₅
+@test gelfand(G₅, x, 2) == 2G₅
+@test gelfand(G₅, x, 3) == 3G₅
+@test gelfand(G₅, x, 4) == -G₅
+
+err = gelfand(G₅, x, 4) + G₅
+t = x[4]x[5]
+coefficient(err, t)
+[coefficient(err, t*α[k]) for k=1:3]
+
+# 22α[1] == 7α[2] + 6α[3]
