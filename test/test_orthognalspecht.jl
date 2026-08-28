@@ -82,6 +82,7 @@ p²⁺¹⁺¹₃₃ = L₄*p¹⁺¹⁺¹ # [1; 2; 3; 4]
 # n = 5
 A₅ = sum( x[1:4] .- x[5])
 B₅  =  (x[1]-x[2])^2 + (x[1]-x[3])^2 + (x[1]-x[4])^2 + (x[2]-x[3])^2 + (x[2]-x[4])^2 + (x[3]-x[4])^2 - A₅^2
+G₅ = -12x[5]^2 + 6x[4]x[5] + 3x[4]^2 + 6x[3]x[5] - 4x[3]x[4] + 3x[3]^2 + 6x[2]x[5] - 4x[2]x[4] - 4x[2]x[3] + 3x[2]^2 + 6x[1]x[5] - 4x[1]x[4] - 4x[1]x[3] - 4x[1]x[2] + 3x[1]^2
 H₅ = prod(x[5] .- x[1:4])
 L₅ = (x[1]-x[5])*(x[2]-x[5]) + (x[1]-x[5])*(x[3]-x[5]) + (x[1]-x[5])*(x[4]-x[5]) + (x[2]-x[5])*(x[3]-x[5]) + (x[2]-x[5])*(x[4]-x[5]) + (x[3]-x[5])*(x[4]-x[5])
 
@@ -105,6 +106,7 @@ p¹⁺¹⁺¹⁺¹⁺¹ = Δ⁵ = p¹⁺¹⁺¹⁺¹ * H₅ # [1; 2; 3; 4; 5]
 
 p⁴⁺¹₁₂ = 6A₅*p³⁺¹₁ + 10p³⁺¹₁₂ # [1 3 4 5; 2]
 p⁴⁺¹₂₂ = 6A₅*p³⁺¹₂ + 10p³⁺¹₂₂ # [1 2 4 5; 3]
+p⁴⁺¹₄₂ = G₅
 p²⁺¹⁺¹⁺¹₄₂ = p¹⁺¹⁺¹⁺¹*A₅ # [1 5; 2; 3; 4]
 p²⁺¹⁺¹⁺¹₄₃ = p¹⁺¹⁺¹⁺¹*L₅ # [1 5; 2; 3; 4]
 
@@ -115,106 +117,109 @@ p⁴⁺¹₂₃ = 3*p³⁺¹₂*B₅ + 6 * p³⁺¹₂₂*A₅ + 4p³⁺¹₂₃
 ####
 # content vectors
 ####
+@testset "content vector" begin
+    @test contentvectorequals(p², x, [1])
+    @test contentvectorequals(p¹⁺¹, x, [-1])
+    @test contentvectorequals(p³, x, [1,2])
+    @test contentvectorequals(p²⁺¹₁, x, [-1,1])
+    @test contentvectorequals(p²⁺¹₂, x, [1,-1])
+    @test contentvectorequals(p²⁺¹₁₂, x, [-1,1])
+    @test contentvectorequals(p²⁺¹₂₂, x, [1,-1])
+    @test contentvectorequals(p¹⁺¹⁺¹, x, [-1,-2])
 
-@test contentvectorequals(p², x, [1])
-@test contentvectorequals(p¹⁺¹, x, [-1])
-@test contentvectorequals(p³, x, [1,2])
-@test contentvectorequals(p²⁺¹₁, x, [-1,1])
-@test contentvectorequals(p²⁺¹₂, x, [1,-1])
-@test contentvectorequals(p²⁺¹₁₂, x, [-1,1])
-@test contentvectorequals(p²⁺¹₂₂, x, [1,-1])
-@test contentvectorequals(p¹⁺¹⁺¹, x, [-1,-2])
+    @test contentvectorequals(p⁴, x, [1,2,3])
 
-@test contentvectorequals(p⁴, x, [1,2,3])
+    @test contentvectorequals(p³⁺¹₁, x, [-1,1,2])
+    @test contentvectorequals(p³⁺¹₂, x, [1,-1,2])
+    @test contentvectorequals(p³⁺¹₃, x, [1,2,-1])
+    @test contentvectorequals(p³⁺¹₁₂, x, [-1,1,2])
+    @test contentvectorequals(p³⁺¹₂₂, x, [1,-1,2])
+    @test contentvectorequals(p³⁺¹₃₂, x, [1,2,-1])
+    @test contentvectorequals(p³⁺¹₁₃, x, [-1,1,2])
+    @test contentvectorequals(p³⁺¹₂₃, x, [1,-1,2])
+    @test contentvectorequals(p³⁺¹₃₃, x, [1,2,-1])
 
-@test contentvectorequals(p³⁺¹₁, x, [-1,1,2])
-@test contentvectorequals(p³⁺¹₂, x, [1,-1,2])
-@test contentvectorequals(p³⁺¹₃, x, [1,2,-1])
-@test contentvectorequals(p³⁺¹₁₂, x, [-1,1,2])
-@test contentvectorequals(p³⁺¹₂₂, x, [1,-1,2])
-@test contentvectorequals(p³⁺¹₃₂, x, [1,2,-1])
-@test contentvectorequals(p³⁺¹₁₃, x, [-1,1,2])
-@test contentvectorequals(p³⁺¹₂₃, x, [1,-1,2])
-@test contentvectorequals(p³⁺¹₃₃, x, [1,2,-1])
+    @test contentvectorequals(p²⁺²₁, x, [-1,1,0])
+    @test contentvectorequals(p²⁺²₂, x, [1,-1,0])
+    @test contentvectorequals(p²⁺²₁₂, x, [-1,1,0])
+    @test contentvectorequals(p²⁺²₂₂, x, [1,-1,0])
 
-@test contentvectorequals(p²⁺²₁, x, [-1,1,0])
-@test contentvectorequals(p²⁺²₂, x, [1,-1,0])
-@test contentvectorequals(p²⁺²₁₂, x, [-1,1,0])
-@test contentvectorequals(p²⁺²₂₂, x, [1,-1,0])
+    @test contentvectorequals(p²⁺¹⁺¹₁, x, [-1,1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹₂, x, [1,-1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹₃, x, [-1,-2,1])
+    @test contentvectorequals(p²⁺¹⁺¹₁₂, x, [-1,1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹₂₂, x, [1,-1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹₃₂, x, [-1,-2,1])
+    @test contentvectorequals(p²⁺¹⁺¹₁₃, x, [-1,1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹₂₃, x, [1,-1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹₃₃, x, [-1,-2,1])
 
-@test contentvectorequals(p²⁺¹⁺¹₁, x, [-1,1,-2])
-@test contentvectorequals(p²⁺¹⁺¹₂, x, [1,-1,-2])
-@test contentvectorequals(p²⁺¹⁺¹₃, x, [-1,-2,1])
-@test contentvectorequals(p²⁺¹⁺¹₁₂, x, [-1,1,-2])
-@test contentvectorequals(p²⁺¹⁺¹₂₂, x, [1,-1,-2])
-@test contentvectorequals(p²⁺¹⁺¹₃₂, x, [-1,-2,1])
-@test contentvectorequals(p²⁺¹⁺¹₁₃, x, [-1,1,-2])
-@test contentvectorequals(p²⁺¹⁺¹₂₃, x, [1,-1,-2])
-@test contentvectorequals(p²⁺¹⁺¹₃₃, x, [-1,-2,1])
+    @test contentvectorequals(p¹⁺¹⁺¹⁺¹, x, [-1,-2,-3])
 
-@test contentvectorequals(p¹⁺¹⁺¹⁺¹, x, [-1,-2,-3])
+    @test contentvectorequals(p⁵, x, [1,2,3,4])
 
-@test contentvectorequals(p⁵, x, [1,2,3,4])
+    @test contentvectorequals(p⁴⁺¹₁, x, [-1,1,2,3])
+    @test contentvectorequals(p⁴⁺¹₂, x, [1,-1,2,3])
+    @test contentvectorequals(p⁴⁺¹₃, x, [1,2,-1,3])
+    @test contentvectorequals(p⁴⁺¹₄, x, [1,2,3,-1])
+    @test contentvectorequals(p⁴⁺¹₁₂, x, [-1,1,2,3])
+    @test contentvectorequals(p⁴⁺¹₂₂, x, [1,-1,2,3])
+    @test contentvectorequals(p⁴⁺¹₄₂, x, [1,2,3,-1])
+    @test contentvectorequals(p⁴⁺¹₁₃, x, [-1,1,2,3])
+    @test contentvectorequals(p⁴⁺¹₂₃, x, [1,-1,2,3])
 
-@test contentvectorequals(p⁴⁺¹₁, x, [-1,1,2,3])
-@test contentvectorequals(p⁴⁺¹₂, x, [1,-1,2,3])
-@test contentvectorequals(p⁴⁺¹₃, x, [1,2,-1,3])
-@test contentvectorequals(p⁴⁺¹₄, x, [1,2,3,-1])
-@test contentvectorequals(p⁴⁺¹₁₂, x, [-1,1,2,3])
-@test contentvectorequals(p⁴⁺¹₂₂, x, [1,-1,2,3])
-@test contentvectorequals(p⁴⁺¹₄₂, x, [1,2,3,-1])
-@test contentvectorequals(p⁴⁺¹₁₃, x, [-1,1,2,3])
-@test contentvectorequals(p⁴⁺¹₂₃, x, [1,-1,2,3])
+    @test contentvectorequals(p³⁺²₁, x, [-1,1,0,2])
+    @test contentvectorequals(p³⁺²₂, x, [1,-1,0,2])
+    @test contentvectorequals(p³⁺²₃, x, [-1,1,2,0])
+    @test contentvectorequals(p³⁺²₄, x, [1,-1,2,0])
+    @test contentvectorequals(p³⁺²₅, x, [1,2,-1,0])
+    @test contentvectorequals(p³⁺¹⁺¹₁, x, [-1,1,2,-2])
+    @test contentvectorequals(p³⁺¹⁺¹₂, x, [1,-1,2,-2])
+    @test contentvectorequals(p³⁺¹⁺¹₃, x, [1,2,-1,-2])
 
-@test contentvectorequals(p³⁺²₁, x, [-1,1,0,2])
-@test contentvectorequals(p³⁺²₂, x, [1,-1,0,2])
-@test contentvectorequals(p³⁺²₃, x, [-1,1,2,0])
-@test contentvectorequals(p³⁺²₄, x, [1,-1,2,0])
-@test contentvectorequals(p³⁺²₅, x, [1,2,-1,0])
-@test contentvectorequals(p³⁺¹⁺¹₁, x, [-1,1,2,-2])
-@test contentvectorequals(p³⁺¹⁺¹₂, x, [1,-1,2,-2])
-@test contentvectorequals(p³⁺¹⁺¹₃, x, [1,2,-1,-2])
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹₄, x, [-1,-2,-3,1])
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₂, x, [-1,-2,-3,1])
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₃, x, [-1,-2,-3,1])
 
-@test contentvectorequals(p²⁺¹⁺¹⁺¹₄, x, [-1,-2,-3,1])
-@test contentvectorequals(p²⁺¹⁺¹⁺¹₄₂, x, [-1,-2,-3,1])
-@test contentvectorequals(p²⁺¹⁺¹⁺¹₄₃, x, [-1,-2,-3,1])
-
-@test contentvectorequals(p¹⁺¹⁺¹⁺¹⁺¹, x, [-1,-2,-3,-4])
+    @test contentvectorequals(p¹⁺¹⁺¹⁺¹⁺¹, x, [-1,-2,-3,-4])
+end
 
 
 #####
 # PDEs
 ####
 
-@test all(iszero, [laplacian(p², x[1:2], k) for k=1:2])
-@test all(iszero, [laplacian(p¹⁺¹, x[1:2], k) for k=1:2])
-@test all(iszero, [laplacian(p³, x[1:3], k) for k=1:3])
-for p in (p²⁺¹₁, p²⁺¹₂, p²⁺¹₁₂, p²⁺¹₂₂)
-    @test all(iszero, [laplacian(p, x[1:3], k) for k=1:3])
-end        
+@testset "laplacian" begin
+    @test all(iszero, [laplacian(p², x[1:2], k) for k=1:2])
+    @test all(iszero, [laplacian(p¹⁺¹, x[1:2], k) for k=1:2])
+    @test all(iszero, [laplacian(p³, x[1:3], k) for k=1:3])
+    for p in (p²⁺¹₁, p²⁺¹₂, p²⁺¹₁₂, p²⁺¹₂₂)
+        @test all(iszero, [laplacian(p, x[1:3], k) for k=1:3])
+    end        
 
-for p in (p¹⁺¹⁺¹,)
-    @test all(iszero, [laplacian(p, x[1:3], k) for k=1:3])
-end        
+    for p in (p¹⁺¹⁺¹,)
+        @test all(iszero, [laplacian(p, x[1:3], k) for k=1:3])
+    end        
 
-for p in (p⁴,)
-    @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
-end
+    for p in (p⁴,)
+        @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
+    end
 
-for p in (p³⁺¹₁,p³⁺¹₂,p³⁺¹₃,p³⁺¹₁₂,p³⁺¹₂₂,p³⁺¹₃₂,p³⁺¹₁₃,p³⁺¹₂₃,p³⁺¹₃₃)
-    @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
-end    
+    for p in (p³⁺¹₁,p³⁺¹₂,p³⁺¹₃,p³⁺¹₁₂,p³⁺¹₂₂,p³⁺¹₃₂,p³⁺¹₁₃,p³⁺¹₂₃,p³⁺¹₃₃)
+        @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
+    end    
 
-for p in (p²⁺²₁,p²⁺²₂,p²⁺²₁₂,p²⁺²₂₂)
-    @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
-end
+    for p in (p²⁺²₁,p²⁺²₂,p²⁺²₁₂,p²⁺²₂₂)
+        @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
+    end
 
-for p in (p²⁺¹⁺¹₁,p²⁺¹⁺¹₂,p²⁺¹⁺¹₃,p²⁺¹⁺¹₁₂,p²⁺¹⁺¹₂₂,p²⁺¹⁺¹₃₂,p²⁺¹⁺¹₁₃,p²⁺¹⁺¹₂₃,p²⁺¹⁺¹₃₃)
-    @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
-end
+    for p in (p²⁺¹⁺¹₁,p²⁺¹⁺¹₂,p²⁺¹⁺¹₃,p²⁺¹⁺¹₁₂,p²⁺¹⁺¹₂₂,p²⁺¹⁺¹₃₂,p²⁺¹⁺¹₁₃,p²⁺¹⁺¹₂₃,p²⁺¹⁺¹₃₃)
+        @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
+    end
 
-for p in (p⁵,p⁴⁺¹₁,p⁴⁺¹₂,p⁴⁺¹₃,p⁴⁺¹₄,p³⁺²₁,p³⁺²₂,p³⁺²₃,p³⁺²₄,p³⁺²₅,p³⁺¹⁺¹₁,p³⁺¹⁺¹₂,p³⁺¹⁺¹₃,p²⁺¹⁺¹⁺¹₄,p¹⁺¹⁺¹⁺¹⁺¹,p⁴⁺¹₁₂,p⁴⁺¹₂₂,p²⁺¹⁺¹⁺¹₄₂,p⁴⁺¹₁₃,p⁴⁺¹₂₃,p²⁺¹⁺¹⁺¹₄₃)
-    @test all(iszero, [laplacian(p, x[1:5], k) for k=1:5])
+    for p in (p⁵,p⁴⁺¹₁,p⁴⁺¹₂,p⁴⁺¹₃,p⁴⁺¹₄,p³⁺²₁,p³⁺²₂,p³⁺²₃,p³⁺²₄,p³⁺²₅,p³⁺¹⁺¹₁,p³⁺¹⁺¹₂,p³⁺¹⁺¹₃,p²⁺¹⁺¹⁺¹₄,p¹⁺¹⁺¹⁺¹⁺¹,p⁴⁺¹₁₂,p⁴⁺¹₂₂,p⁴⁺¹₄₂,p²⁺¹⁺¹⁺¹₄₂,p⁴⁺¹₁₃,p⁴⁺¹₂₃,p²⁺¹⁺¹⁺¹₄₃)
+        @test all(iszero, [laplacian(p, x[1:5], k) for k=1:5])
+    end
 end
 
 
@@ -611,5 +616,13 @@ coefficient(err, t)
 
 
 # commented out because it didn't satisfy Laplace
-# G₅ = x[1]^2+x[2]^2+x[3]^2+x[4]^2 - 4x[5]^2 + (3*(x[1]+x[2]+x[3]+x[4])x[5] + 2 * (  - x[2]x[3] - x[1]x[3] - x[1]x[2] - x[1]x[4] - x[2]x[4] - x[3]x[4]))
-# p⁴⁺¹₄₂ = G₅
+G₅ = x[1]^2+x[2]^2+x[3]^2+x[4]^2 - 4x[5]^2 + (3*(x[1]+x[2]+x[3]+x[4])x[5] + 2 * (  - x[2]x[3] - x[1]x[3] - x[1]x[2] - x[1]x[4] - x[2]x[4] - x[3]x[4]))
+G₅ = -12x[5]^2 + 6x[4]x[5] + 3x[4]^2 + 6x[3]x[5] - 4x[3]x[4] + 3x[3]^2 + 6x[2]x[5] - 4x[2]x[4] - 4x[2]x[3] + 3x[2]^2 + 6x[1]x[5] - 4x[1]x[4] - 4x[1]x[3] - 4x[1]x[2] + 3x[1]^2
+
+p⁵\
+
+p⁴⁺¹₄₂ = 5G₅+(A₅)*(x[1]+x[2]+x[3]+x[4]+x[5])
+@test contentvectorequals(p⁴⁺¹₄₂, x, [1,2,3,-1])
+@test all(iszero, [laplacian(p⁴⁺¹₄₂, x[1:5], k) for k=1:5])
+laplacian(5G₅+(A₅)*(x[1]+x[2]+x[3]+x[4]+x[5]), x[1:5], 1) == -5A₅
+laplacian((A₅)*(x[1]+x[2]+x[3]+x[4]+x[5]),x,1) == 5(A₅)
