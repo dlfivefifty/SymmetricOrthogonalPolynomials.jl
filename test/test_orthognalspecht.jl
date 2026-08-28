@@ -20,9 +20,7 @@ contentvectorequals(p, x, 𝐜) = all(gelfand.(Ref(p), Ref(x), 1:length(𝐜)) .
 ######
 # orthogonal Specht polynomials, comment gives corresponding SYT
 ######
-
-n = 5
-@polyvar x[1:n]
+@polyvar x[1:6]
 
 p² = 1 # [1 2]
 p¹⁺¹ = Δ² = x[2]-x[1] # [1; 2]
@@ -113,6 +111,20 @@ p²⁺¹⁺¹⁺¹₄₃ = p¹⁺¹⁺¹⁺¹*L₅ # [1 5; 2; 3; 4]
 p⁴⁺¹₁₃ = 3*p³⁺¹₁*B₅ + 6 * p³⁺¹₁₂*A₅ + 4p³⁺¹₁₃ # [1 3 4 5; 2]
 p⁴⁺¹₂₃ = 3*p³⁺¹₂*B₅ + 6 * p³⁺¹₂₂*A₅ + 4p³⁺¹₂₃ # [1 2 4 5; 3]
 
+A₆ = sum( x[1:5] .- x[6])
+G₆ = (-5x[6]^2 + sum(x[1:5].^2)) + 2*x[6]sum(x[1:5]) - (sum(x[k]sum(x[1:k-1]) for k=1:5))
+
+p⁶ = p⁵ # [1 2 3 4 5 6]
+p⁵⁺¹₁ = p⁴⁺¹₁ # [1 3 4 5 6; 2]
+p⁵⁺¹₂ = p⁴⁺¹₂ # [1 2 4 5 6; 3]
+p⁵⁺¹₃ = p⁴⁺¹₃ # [1 2 3 5 6; 4]
+p⁵⁺¹₄ = p⁴⁺¹₄ # [1 2 3 4 6; 5]
+p⁵⁺¹₅ = A₆  # [1 2 3 4 5; 6]
+
+p⁵⁺¹₁₂ = 4A₆*p⁴⁺¹₁ + p⁴⁺¹₁₂ # [1 3 4 5 6; 2]
+p⁵⁺¹₂₂ = 4A₆*p⁴⁺¹₂ + p⁴⁺¹₂₂ # [1 2 4 5 6; 3]
+p⁵⁺¹₅₂ = G₆ # [1 2 3 4 5; 6]
+
 
 ####
 # content vectors
@@ -182,6 +194,17 @@ p⁴⁺¹₂₃ = 3*p³⁺¹₂*B₅ + 6 * p³⁺¹₂₂*A₅ + 4p³⁺¹₂₃
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₃, x, [-1,-2,-3,1])
 
     @test contentvectorequals(p¹⁺¹⁺¹⁺¹⁺¹, x, [-1,-2,-3,-4])
+
+    @test contentvectorequals(p⁶, x, [1,2,3,4,5])
+
+    @test contentvectorequals(p⁵⁺¹₁, x, [-1,1,2,3,4])
+    @test contentvectorequals(p⁵⁺¹₂, x, [1,-1,2,3,4])
+    @test contentvectorequals(p⁵⁺¹₃, x, [1,2,-1,3,4])
+    @test contentvectorequals(p⁵⁺¹₄, x, [1,2,3,-1,4])
+    @test contentvectorequals(p⁵⁺¹₅, x, [1,2,3,4,-1])
+    @test contentvectorequals(p⁵⁺¹₁₂, x, [-1,1,2,3,4])
+    @test contentvectorequals(p⁵⁺¹₂₂, x, [1,-1,2,3,4])
+    @test contentvectorequals(p⁵⁺¹₅₂, x, [1,2,3,4,-1])
 end
 
 
@@ -626,3 +649,9 @@ p⁴⁺¹₄₂ = 5G₅+(A₅)*(x[1]+x[2]+x[3]+x[4]+x[5])
 @test all(iszero, [laplacian(p⁴⁺¹₄₂, x[1:5], k) for k=1:5])
 laplacian(5G₅+(A₅)*(x[1]+x[2]+x[3]+x[4]+x[5]), x[1:5], 1) == -5A₅
 laplacian((A₅)*(x[1]+x[2]+x[3]+x[4]+x[5]),x,1) == 5(A₅)
+
+x[1]^2+x[2]^2+x[3]^2 - 3x[4]^2 + 2(x[3]x[4] + x[2]x[4] - x[2]x[3] + x[1]x[4] - x[1]x[3] - x[1]x[2])
+B₃
+@test -B₃ == (-2x[3]^2 + sum(x[1:2].^2)) + 2x[3]sum(x[1:2]) - 4*(sum(x[k]sum(x[1:k-1]) for k=1:2))
+@test G₄ == (-3x[4]^2 + sum(x[1:3].^2)) + 2x[4]sum(x[1:3]) - 2*(sum(x[k]sum(x[1:k-1]) for k=1:3))
+@test G₅/3 == (-4x[5]^2 + sum(x[1:4].^2)) + 2*x[5]sum(x[1:4]) - 4/3*(sum(x[k]sum(x[1:k-1]) for k=1:4))
