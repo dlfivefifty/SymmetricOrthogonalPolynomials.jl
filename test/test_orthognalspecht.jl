@@ -13,6 +13,7 @@ function _polydiff(q, x, k)
 end
 polydiff(q, m::Monomial) = _polydiff(q, m.vars, m.z)
 polydiff(q, p) = sum(t.coefficient*polydiff(q, t.monomial) for t in terms(p))
+polydiff(q, k::Number) = k*q
 
 # tests if content vectors of p match 𝐜
 contentvectorequals(p, x, 𝐜) = all(gelfand.(Ref(p), Ref(x), 1:length(𝐜)) .== 𝐜 .* Ref(p))
@@ -29,11 +30,11 @@ A₃ = x[1]+x[2]-2x[3]
 B₃ = 2*(x[1]-x[3])*(x[2]-x[3]) - (x[1]-x[2])^2
 C₃ = (x[3]-x[1])*(x[3]-x[2])
 p³ = p² # [1 2 3]
-p²⁺¹₁ = p¹⁺¹ # [1 3; 2]
-p²⁺¹₂ = A₃   # [1 2; 3]
+p²⁺¹₁ = p¹⁺¹ # [1 3; 2]     [1 3; 2]
+p²⁺¹₂ = A₃   # [1 2; 3]     [1 3; 2]
 p¹⁺¹⁺¹ = Δ³ = p¹⁺¹ * C₃ # [1; 2; 3]
-p²⁺¹₁₂ =  p¹⁺¹*A₃       # [1 3; 2]
-p²⁺¹₂₂ = B₃    # [1 2; 3]
+p²⁺¹₁₂ =  p¹⁺¹*A₃       # [1 3; 2]      [1 2; 3]
+p²⁺¹₂₂ = B₃    # [1 2; 3]       [1 2; 3]
 
 
 A₄ = -(x[4]-x[1] + x[4]-x[2] + x[4]-x[3])
@@ -49,10 +50,13 @@ J₄ = -9x[4]^3 + 9x[3]x[4]^2 + 2x[3]^2*x[4] + 9x[2]x[4]^2 - 11x[2]x[3]x[4] - x[
 K₄ = -2x[3]^3*x[4] + 3x[2]x[3]^2*x[4] + x[2]x[3]^3 + 3x[2]^2*x[3]x[4] - 4x[2]^2*x[3]^2 - 2x[2]^3*x[4] + x[2]^3*x[3] + 3x[1]x[3]^2*x[4] + x[1]x[3]^3 - 12x[1]x[2]x[3]x[4] + 2x[1]x[2]x[3]^2 + 3x[1]x[2]^2*x[4] + 2x[1]x[2]^2*x[3] + x[1]x[2]^3 + 3x[1]^2*x[3]x[4] - 4x[1]^2*x[3]^2 + 3x[1]^2*x[2]x[4] + 2x[1]^2*x[2]x[3] - 4x[1]^2*x[2]^2 - 2x[1]^3*x[4] + x[1]^3*x[3] + x[1]^3*x[2]
 L₄ = (x[1]-x[4])*(x[2]-x[4]) + (x[1]-x[4])*(x[3]-x[4]) + (x[2]-x[4])*(x[3]-x[4])
 
+(x4-x1 + x4-x2 + x4-x3)
+(x1-x2)^2 + (x1-x3)^2 + (x2-x3)^2 
+6x4^3 - 6x3x4^2 - 6x3^2*x4 - 2x3^3 - 6x2x4^2 + 12x2x3x4 + 6x2x3^2 - 6x2^2*x4 + 6x2^2*x3 - 2x2^3 - 6x1x4^2 + 12x1x3x4 + 6x1x3^2 + 12x1x2x4- 36x1x2x3 + 6x1x2^2 - 6x1^2*x4 + 6x1^2*x3 + 6x1^2*x2 - 2x1^3
 
 p⁴ = p³ # [1 2 3 4]
-p³⁺¹₁ = p²⁺¹₁ # [1 3 4; 2]
-p³⁺¹₂ = p²⁺¹₂ # [1 2 4; 3]
+p³⁺¹₁ = p²⁺¹₁ # [1 3 4; 2]      [1 3 4; 2]
+p³⁺¹₂ = p²⁺¹₂ # [1 2 4; 3]      [1 3 4; 2]
 p³⁺¹₃ = A₄ # [1 2 3; 4]
 p²⁺²₁ = p²⁺¹₁*A₄ - p²⁺¹₁₂ # [1 3; 2 4]
 p²⁺²₂ = p²⁺¹₂*A₄ + p²⁺¹₂₂ # [1 2; 3 4]
@@ -61,20 +65,20 @@ p²⁺¹⁺¹₂ = p²⁺¹₂*B₄ + p²⁺¹₂₂*A₄ # [1 2; 3; 4]
 p²⁺¹⁺¹₃ = p¹⁺¹⁺¹ # [1 4 ; 2; 3]
 p¹⁺¹⁺¹⁺¹ = Δ⁴ = p¹⁺¹⁺¹ * H₄ # [1; 2; 3; 4]
 
-p³⁺¹₁₂ = A₄*p²⁺¹₁ + 2p²⁺¹₁₂ # [1 3 4; 2]
-p³⁺¹₂₂ = A₄*p²⁺¹₂ - 2p²⁺¹₂₂ # [1 2 4; 3]
-p³⁺¹₃₂ = G₄ # [1 2 3; 4]
+p³⁺¹₁₂ = A₄*p²⁺¹₁ + 2p²⁺¹₁₂ # [1 3 4; 2]    [1 2 4; 3]
+p³⁺¹₂₂ = A₄*p²⁺¹₂ - 2p²⁺¹₂₂ # [1 2 4; 3]    [1 2 4; 3]
+p³⁺¹₃₂ = G₄ # [1 2 3; 4]                [1 2 4; 3]
 p²⁺²₁₂ = p²⁺¹₁*C₄ + p²⁺¹₁₂*D₄ # [1 3; 2 4]
 p²⁺²₂₂ = p²⁺¹₂*C₄ - p²⁺¹₂₂*D₄ # [1 2; 3 4]
 p²⁺¹⁺¹₁₂ = p²⁺¹₁*F₄ + E₄*p²⁺¹₁₂ # [1 3; 2; 4]
-p²⁺¹⁺¹₂₂ = p²⁺¹₂*F₄ - E₄*p²⁺¹₂₂ # [1 4 ; 2; 3]
+p²⁺¹⁺¹₂₂ = p²⁺¹₂*F₄ - E₄*p²⁺¹₂₂ # [1 2 ; 3; 4]
 p²⁺¹⁺¹₃₂ = p¹⁺¹⁺¹*A₄ # [1; 2; 3; 4]
 
-p³⁺¹₁₃ = p²⁺¹₁*B₄ + 5p²⁺¹₁₂*A₄ # [1 3 4; 2]
-p³⁺¹₂₃ = p²⁺¹₂*B₄ - 5p²⁺¹₂₂*A₄ # [1 2 4; 3]
-p³⁺¹₃₃ = I₄ # [1 2 3; 4]
+p³⁺¹₁₃ = p²⁺¹₁*B₄ + 5p²⁺¹₁₂*A₄ # [1 3 4; 2]     [1 2 3; 4]
+p³⁺¹₂₃ = p²⁺¹₂*B₄ - 5p²⁺¹₂₂*A₄ # [1 2 4; 3]     [1 2 3; 4]
+p³⁺¹₃₃ = I₄ # [1 2 3; 4]     [1 2 3; 4]
 p²⁺¹⁺¹₁₃ = K₄*p²⁺¹₁ + J₄*p²⁺¹₁₂ # [1 3; 2; 4]
-p²⁺¹⁺¹₂₃ = K₄*p²⁺¹₂ - J₄*p²⁺¹₂₂ # [1 4 ; 2; 3]
+p²⁺¹⁺¹₂₃ = K₄*p²⁺¹₂ - J₄*p²⁺¹₂₂ # [1 2 ; 3; 4]
 p²⁺¹⁺¹₃₃ = L₄*p¹⁺¹⁺¹ # [1; 2; 3; 4]
 
 # n = 5
@@ -99,20 +103,44 @@ p³⁺²₅ = p³⁺¹₃*A₅ - p³⁺¹₃₂ # [1 2 3; 4 5]
 p³⁺¹⁺¹₁ = 3p³⁺¹₁*B₅ - 2p³⁺¹₁₂*A₅ # [1 3 4; 2; 5]
 p³⁺¹⁺¹₂ = 3p³⁺¹₂*B₅ - 2p³⁺¹₂₂*A₅ # [1 2 4; 3; 5]
 p³⁺¹⁺¹₃ = p³⁺¹₃*B₅ - 2p³⁺¹₃₂*A₅ # [1 2 3; 4; 5]
+p³⁺¹⁺¹₄ = p²⁺¹⁺¹₁₂*A₅ + p²⁺¹⁺¹₁₃ # [1 3 5; 2; 4]
+p³⁺¹⁺¹₅ = p²⁺¹⁺¹₂₂*A₅ + p²⁺¹⁺¹₂₃ # [1 4 5; 2; 3]
 p²⁺¹⁺¹⁺¹₄ = p¹⁺¹⁺¹⁺¹ # [1 5; 2; 3; 4]
 p¹⁺¹⁺¹⁺¹⁺¹ = Δ⁵ = p¹⁺¹⁺¹⁺¹ * H₅ # [1; 2; 3; 4; 5]
 
 p⁴⁺¹₁₂ = 6A₅*p³⁺¹₁ + 10p³⁺¹₁₂ # [1 3 4 5; 2]
 p⁴⁺¹₂₂ = 6A₅*p³⁺¹₂ + 10p³⁺¹₂₂ # [1 2 4 5; 3]
 p⁴⁺¹₄₂ = G₅
+p³⁺¹⁺¹₁₂ = polydiff(Δ⁵,p³⁺¹⁺¹₅)
+p³⁺¹⁺¹₅₂ = polydiff(Δ⁵,p³⁺¹⁺¹₁₂)
+p³⁺¹⁺¹₁₃ = polydiff(Δ⁵,p³⁺¹⁺¹₅₂)
+p³⁺¹⁺¹₅₃ = polydiff(Δ⁵,p³⁺¹⁺¹₁₃)
+p³⁺¹⁺¹₁₄ = polydiff(Δ⁵,p³⁺¹⁺¹₅₃)
+
+
+polys = [p³⁺¹⁺¹₁₂,p³⁺¹⁺¹₁₃,p³⁺¹⁺¹₁₄]
+polys = [p³⁺¹⁺¹₅₂,p³⁺¹⁺¹₅₃]
+
+# union of all monomials appearing in any of the polynomials
+X = sort!(union(monomials.(polys)...))
+
+# coefficient matrix: rows = monomials, columns = polynomials
+A = [coefficient(p, m) for m in X, p in polys]
+
+@test rank(A) == length(polys)   # true iff linearly independent
+
 p²⁺¹⁺¹⁺¹₄₂ = p¹⁺¹⁺¹⁺¹*A₅ # [1 5; 2; 3; 4]
 p²⁺¹⁺¹⁺¹₄₃ = p¹⁺¹⁺¹⁺¹*L₅ # [1 5; 2; 3; 4]
 
 p⁴⁺¹₁₃ = 3*p³⁺¹₁*B₅ + 6 * p³⁺¹₁₂*A₅ + 4p³⁺¹₁₃ # [1 3 4 5; 2]
 p⁴⁺¹₂₃ = 3*p³⁺¹₂*B₅ + 6 * p³⁺¹₂₂*A₅ + 4p³⁺¹₂₃ # [1 2 4 5; 3]
+p⁴⁺¹₄₃ = polydiff(Δ⁵,p²⁺¹⁺¹⁺¹₄₂)
+
+p⁴⁺¹₄₄ = polydiff(Δ⁵,p²⁺¹⁺¹⁺¹₄)
 
 A₆ = sum( x[1:5] .- x[6])
 G₆ = (-5x[6]^2 + sum(x[1:5].^2)) + 2*x[6]sum(x[1:5]) - (sum(x[k]sum(x[1:k-1]) for k=1:5))
+H₆ = prod(x[6] .- x[1:5])
 
 p⁶ = p⁵ # [1 2 3 4 5 6]
 p⁵⁺¹₁ = p⁴⁺¹₁ # [1 3 4 5 6; 2]
@@ -124,6 +152,8 @@ p⁵⁺¹₅ = A₆  # [1 2 3 4 5; 6]
 p⁵⁺¹₁₂ = 4A₆*p⁴⁺¹₁ + p⁴⁺¹₁₂ # [1 3 4 5 6; 2]
 p⁵⁺¹₂₂ = 4A₆*p⁴⁺¹₂ + p⁴⁺¹₂₂ # [1 2 4 5 6; 3]
 p⁵⁺¹₅₂ = G₆ # [1 2 3 4 5; 6]
+
+p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3; 4; 5]
 
 
 ####
@@ -185,9 +215,16 @@ p⁵⁺¹₅₂ = G₆ # [1 2 3 4 5; 6]
     @test contentvectorequals(p³⁺²₃, x, [-1,1,2,0])
     @test contentvectorequals(p³⁺²₄, x, [1,-1,2,0])
     @test contentvectorequals(p³⁺²₅, x, [1,2,-1,0])
+
     @test contentvectorequals(p³⁺¹⁺¹₁, x, [-1,1,2,-2])
     @test contentvectorequals(p³⁺¹⁺¹₂, x, [1,-1,2,-2])
     @test contentvectorequals(p³⁺¹⁺¹₃, x, [1,2,-1,-2])
+    @test contentvectorequals(p³⁺¹⁺¹₄, x, [-1,1,-2,2])
+    @test contentvectorequals(p³⁺¹⁺¹₅, x, [1,-1,-2,2])
+    @test contentvectorequals(p³⁺¹⁺¹₁₂, x, [-1,1,2,-2]) 
+    @test contentvectorequals(p³⁺¹⁺¹₅₂, x, [1,-1,-2,2])
+    @test contentvectorequals(p³⁺¹⁺¹₁₃, x, [-1,1,2,-2]) 
+    @test contentvectorequals(p³⁺¹⁺¹₅₃, x, [1,-1,-2,2])
 
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄, x, [-1,-2,-3,1])
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₂, x, [-1,-2,-3,1])
@@ -240,7 +277,7 @@ end
         @test all(iszero, [laplacian(p, x[1:4], k) for k=1:4])
     end
 
-    for p in (p⁵,p⁴⁺¹₁,p⁴⁺¹₂,p⁴⁺¹₃,p⁴⁺¹₄,p³⁺²₁,p³⁺²₂,p³⁺²₃,p³⁺²₄,p³⁺²₅,p³⁺¹⁺¹₁,p³⁺¹⁺¹₂,p³⁺¹⁺¹₃,p²⁺¹⁺¹⁺¹₄,p¹⁺¹⁺¹⁺¹⁺¹,p⁴⁺¹₁₂,p⁴⁺¹₂₂,p⁴⁺¹₄₂,p²⁺¹⁺¹⁺¹₄₂,p⁴⁺¹₁₃,p⁴⁺¹₂₃,p²⁺¹⁺¹⁺¹₄₃)
+    for p in (p⁵,p⁴⁺¹₁,p⁴⁺¹₂,p⁴⁺¹₃,p⁴⁺¹₄,p³⁺²₁,p³⁺²₂,p³⁺²₃,p³⁺²₄,p³⁺²₅,p³⁺¹⁺¹₁,p³⁺¹⁺¹₂,p³⁺¹⁺¹₃,p²⁺¹⁺¹⁺¹₄,p¹⁺¹⁺¹⁺¹⁺¹,p⁴⁺¹₁₂,p⁴⁺¹₂₂,p⁴⁺¹₄₂,p²⁺¹⁺¹⁺¹₄₂,p⁴⁺¹₁₃,p⁴⁺¹₂₃,p⁴⁺¹₄₃,p²⁺¹⁺¹⁺¹₄₃,p⁴⁺¹₄₄)
         @test all(iszero, [laplacian(p, x[1:5], k) for k=1:5])
     end
 end
@@ -251,10 +288,12 @@ end
 #######
 
 # p²⁺¹₁(D)*Δ³
-@test polydiff(Δ³, p²⁺¹₁) == differentiate(Δ³, x[2]) - differentiate(Δ³, x[1]) == p²⁺¹₂₂
+@test polydiff(Δ³, p²⁺¹₁) == differentiate(Δ³, x[2]) - differentiate(Δ³, x[1]) == p²⁺¹₂₂ == B₃
 # p²⁺¹₂(D)*Δ
 @test polydiff(Δ³, p²⁺¹₂) == -(2differentiate(Δ³, x[3]) - differentiate(Δ³, x[1]) - differentiate(Δ³, x[2])) == 3p²⁺¹₁₂
 
+
+@test polydiff(Δ⁴, p¹⁺¹⁺¹⁺¹) == 288p⁴
 
 @test 9polydiff(Δ⁴, p³⁺¹₁) == p²⁺¹⁺¹₂₃
 @test -3polydiff(Δ⁴, p³⁺¹₂) == p²⁺¹⁺¹₁₃
@@ -267,6 +306,33 @@ end
 @test polydiff(Δ⁴, p³⁺¹₁₃) == 40p²⁺¹⁺¹₂
 @test polydiff(Δ⁴, p³⁺¹₂₃) == -120p²⁺¹⁺¹₁
 @test polydiff(Δ⁴, p³⁺¹₃₃) == 480p²⁺¹⁺¹₃
+
+@test polydiff(Δ⁴, p²⁺²₁) == 2p²⁺²₂₂
+@test polydiff(Δ⁴, p²⁺²₂) == -6p²⁺²₁₂
+
+@test polydiff(Δ⁴, p²⁺¹⁺¹₁) == -8p³⁺¹₂₃
+@test polydiff(Δ⁴, p²⁺¹⁺¹₂) == 24p³⁺¹₁₃
+@test polydiff(Δ⁴, p²⁺¹⁺¹₃) == 2p³⁺¹₃₃
+
+@test polydiff(Δ⁴, p²⁺¹⁺¹₁₂) == 192p³⁺¹₂₂
+@test polydiff(Δ⁴, p²⁺¹⁺¹₂₂) == -576p³⁺¹₁₂
+@test polydiff(Δ⁴, p²⁺¹⁺¹₃₂) == 48p³⁺¹₃₂
+
+@test polydiff(Δ⁴, p²⁺¹⁺¹₁₃) == -1728p³⁺¹₂
+@test polydiff(Δ⁴, p²⁺¹⁺¹₂₃) == 9*576p³⁺¹₁
+@test polydiff(Δ⁴, p²⁺¹⁺¹₃₃) == -3*48p³⁺¹₃
+
+
+@test polydiff(Δ⁴, p⁴) == p¹⁺¹⁺¹⁺¹
+
+@test polydiff(Δ⁵, p¹⁺¹⁺¹⁺¹⁺¹) == 34560p⁵
+
+@test polydiff(Δ⁵,p²⁺¹⁺¹⁺¹₄) == p⁴⁺¹₄₄
+@test polydiff(Δ⁵,p²⁺¹⁺¹⁺¹₄₂) == p⁴⁺¹₄₃
+@test polydiff(Δ⁵,p²⁺¹⁺¹⁺¹₄₃) == -2880p⁴⁺¹₄₂
+
+@test polydiff(Δ⁵,p³⁺¹⁺¹₅) == p³⁺¹⁺¹₁₂
+
 
 #######
 # experiments
@@ -655,3 +721,31 @@ B₃
 @test -B₃ == (-2x[3]^2 + sum(x[1:2].^2)) + 2x[3]sum(x[1:2]) - 4*(sum(x[k]sum(x[1:k-1]) for k=1:2))
 @test G₄ == (-3x[4]^2 + sum(x[1:3].^2)) + 2x[4]sum(x[1:3]) - 2*(sum(x[k]sum(x[1:k-1]) for k=1:3))
 @test G₅/3 == (-4x[5]^2 + sum(x[1:4].^2)) + 2*x[5]sum(x[1:4]) - 4/3*(sum(x[k]sum(x[1:k-1]) for k=1:4))
+
+
+
+@test I₄ == 6x[4]^3 - 6x[4]^2 * (x[1]+x[2]+x[3]) - 6x[4] * (x[3]^2 + x[2]^2 + x[1]^2 - 2*(x[1]x[3]+x[1]x[2]+x[2]x[3])) - 2*(x[1]^3 + x[2]^3 + x[3]^3 - 3 * (x[1]x[2]^2 + x[1]x[3]^2 + x[2]x[3]^2 + x[1]^2*x[2] + x[1]^2*x[3] + x[2]^2*x[3]) + 18*x[1]x[2]x[3])
+
+
+a = 180
+b = -120
+
+
+c = b - 6 * a
+@polyvar a b c
+f = a*p²⁺¹⁺¹₁*B₅ + b*p²⁺¹⁺¹₁₂*A₅ + c*p²⁺¹⁺¹₁₃
+@test gelfand(f, x, 1) == -f
+@test gelfand(f, x, 2) == f
+@test gelfand(f, x, 3) == -2f
+
+
+err = gelfand(f, x, 4) - (2f)
+t = x[2]x[4]^2*x[5]^2
+coefficient(err, t*a)
+coefficient(err, t*b)
+coefficient(err, t*c)
+
+
+laplacian(f,x,2)
+
+gelfand(p³⁺¹⁺¹₅,x, 4) - 2p³⁺¹⁺¹₅
