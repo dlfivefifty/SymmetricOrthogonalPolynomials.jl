@@ -17,6 +17,7 @@ polydiff(q, k::Number) = k*q
 
 # tests if content vectors of p match 𝐜
 contentvectorequals(p, x, 𝐜) = all(gelfand.(Ref(p), Ref(x), 1:length(𝐜)) .== 𝐜 .* Ref(p))
+contentvectorisapprox(p, x, 𝐜) = all(gelfand.(Ref(p), Ref(x), 1:length(𝐜)) .≈ 𝐜 .* Ref(p))
 
 ######
 # orthogonal Specht polynomials, comment gives corresponding SYT
@@ -749,3 +750,48 @@ coefficient(err, t*c)
 laplacian(f,x,2)
 
 gelfand(p³⁺¹⁺¹₅,x, 4) - 2p³⁺¹⁺¹₅
+
+
+
+
+######
+# diagonalise?
+######
+
+ρ = Representation(2,1)
+
+@polyvar c
+𝐩 = [p²⁺¹₁, -1/sqrt(3) * p²⁺¹₂]
+
+@test subs.(𝐩, x[2]=>x[1], x[1]=>x[2])  == ρ.generators[1]*𝐩
+@test all(subs.(𝐩, x[3]=>x[2], x[2]=>x[3])  .≈ ρ.generators[2]*𝐩)
+
+_, Q = blockdiagonalize(ρ ⊗ ρ)
+
+
+@test (ρ ⊗ ρ).generators[1] * Q[:,1] == -Q[:,1]
+@test (ρ ⊗ ρ).generators[2] * Q[:,1] == -Q[:,1]
+
+Q' * (ρ ⊗ ρ).generators[1] *Q
+Q' * (ρ ⊗ ρ).generators[2] *Q
+
+@test (ρ ⊗ ρ).generators[1] * Q[:,1] ≈ -Q[:,1]
+@test (ρ ⊗ ρ).generators[2] * Q[:,1] ≈ -Q[:,1]
+
+@test (ρ ⊗ ρ).generators[1] * Q[:,4] ≈ Q[:,4]
+@test (ρ ⊗ ρ).generators[2] * Q[:,4] ≈ Q[:,4]
+
+
+
+@test ρ.generators[1]*reshape(Q[:,1], 2, 2)*ρ.generators[1]' == reshape(Q[:,3], 2, 2)
+@test ρ.generators[2]*reshape(Q[:,3], 2, 2)*ρ.generators[2]' == reshape(Q[:,3], 2, 2)
+
+
+@test contentvectorisapprox(𝐩[1]^2 + 𝐩[2]^2, x, [1,2])
+
+@test contentvectorisapprox(𝐩[1]𝐩[2], x, [-1,1])
+@test contentvectorisapprox(𝐩[1]^2 - 𝐩[2]^2, x, [1,-1])
+
+@test p²⁺¹₁₂ ≈ -sqrt(3)𝐩[1]𝐩[2]
+@test p²⁺¹₂₂ ≈ -3/2*(𝐩[1]^2 - 𝐩[2]^2)
+
