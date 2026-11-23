@@ -7,6 +7,8 @@ using DynamicPolynomials: Monomial
 gelfand(p, x, m) = sum(subs(p, x[k] => x[m+1], x[m+1] => x[k]) for k=1:m)
 laplacian(p, x, k=1) = sum(differentiate.(p, x, k))
 
+transp(p, x, k) = subs(p, x[k] => x[k+1], x[k+1] => x[k])
+
 function _polydiff(q, x, k)
     isempty(x) && return q
     _polydiff(differentiate(q, x[1], k[1]), x[2:end], k[2:end])
@@ -800,4 +802,71 @@ Q' * (ρ ⊗ ρ).generators[2] *Q
 
 @test p²⁺¹₁₂ ≈ -sqrt(3)𝐩[1]𝐩[2]
 @test p²⁺¹₂₂ ≈ -3/2*(𝐩[1]^2 - 𝐩[2]^2)
+
+
+
+
+########
+# inductive buildup
+########
+
+
+@test p² == 1 # [1 2]
+@test p¹⁺¹ == Δ² == x[2]-x[1] # [1; 2]
+
+
+##
+# n = 2
+##
+
+# add a box in first row doesn't change anything
+@test p³ == p² # [1 2 3]
+@test p²⁺¹₁ == p¹⁺¹ # [1 3; 2]
+
+# We now use the property that (q^λ_k denotes p^λ_k rescaled to induce an orthogonal irrep)
+# (2,3) ∘ q²⁺¹₁ = q²⁺¹₁/r + sqrt(1-1/r^2)q²⁺¹₂
+# i.e. up to a constant scaling
+# p²⁺¹₂ ≅ r * (2,3) ∘ p²⁺¹₁ -  p²⁺¹₁
+
+@test  p²⁺¹₂ == -(2transp(p²⁺¹₁, x, 2) - p²⁺¹₁)
+
+# to build the 2nd order one we use the duality. Can the last equality be derived from this?
+@test 3p²⁺¹₁₂ == polydiff(Δ³, p²⁺¹₂)
+@test  p²⁺¹₂₂ == (2transp(p²⁺¹₁₂, x, 2) - p²⁺¹₁₂)
+
+# finally we know the last one is the Vandermonde matix, which we view as duality:
+@test p¹⁺¹⁺¹ == polydiff(Δ³, p³) # [1; 2; 3]
+##
+# n = 3
+##
+
+# add a box in first row to the (lowest order) polys  doesn't change anything
+@test p⁴ == p³ # [1 2 3 4]
+@test p³⁺¹₁ == p²⁺¹₁ # [1 3 4; 2]
+@test p³⁺¹₂ == p²⁺¹₂ # [1 2 4; 3]
+@test p²⁺¹⁺¹₃ == p¹⁺¹⁺¹ # [1 4; 2; 3]
+
+# We use the permutation property to "fill in the blanks" of the lowest order
+# permute (3,4):
+@test 2p³⁺¹₃ == (3transp(p³⁺¹₂, x, 3) - p³⁺¹₂) # [1 2 3; 4]
+
+# We can similarly permute (3,4) for 2+1+1:
+@test p²⁺¹⁺¹₁ == -3*(3transp(p²⁺¹⁺¹₃, x, 3) - p²⁺¹⁺¹₃) # [1 3; 2; 4]
+# and permute (2,3) for 2+1+1:
+@test p²⁺¹⁺¹₂ == -(2transp(p²⁺¹⁺¹₁, x, 2) - p²⁺¹⁺¹₁) # [1 2; 3; 4]
+
+# we know the sign representation is the Vandermonde det, which we can view as duality
+@test p¹⁺¹⁺¹⁺¹ == polydiff(Δ⁴, p⁴) # [1; 2; 3; 4]
+
+
+
+# we can use the duality to build a higher order one:
+@test p²⁺¹⁺¹₂₃ == 9polydiff(Δ⁴, p³⁺¹₁) # [1 2; 3; 4]
+@test 2p³⁺¹₃₃ == polydiff(Δ⁴, p²⁺¹⁺¹₃) # [1 2 3; 4]
+
+# and fill in the rest with transposition:
+@test 3p²⁺¹⁺¹₁₃ == -(2transp(p²⁺¹⁺¹₂₃, x, 2) + p²⁺¹⁺¹₂₃)   # [1 3; 2; 4]
+@test 24p²⁺¹⁺¹₃₃ == -(3transp(p²⁺¹⁺¹₁₃, x, 3) + p²⁺¹⁺¹₁₃)   # [1 3; 2; 4]
+@test 4p³⁺¹₂₃ == -3*(3transp(p³⁺¹₃₃, x, 3) + p³⁺¹₃₃)   # [1 2 4; 3]
+@test 3p³⁺¹₁₃ == -(2transp(p³⁺¹₂₃, x, 2) + p³⁺¹₂₃)   # [1 3 4; 2]
 
