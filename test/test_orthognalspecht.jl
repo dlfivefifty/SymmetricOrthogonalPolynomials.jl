@@ -75,7 +75,7 @@ p²⁺²₁₂ = p²⁺¹₁*C₄ + p²⁺¹₁₂*D₄ # [1 3; 2 4]
 p²⁺²₂₂ = p²⁺¹₂*C₄ - p²⁺¹₂₂*D₄ # [1 2; 3 4]
 p²⁺¹⁺¹₁₂ = p²⁺¹₁*F₄ + E₄*p²⁺¹₁₂ # [1 3; 2; 4]
 p²⁺¹⁺¹₂₂ = p²⁺¹₂*F₄ - E₄*p²⁺¹₂₂ # [1 2 ; 3; 4]
-p²⁺¹⁺¹₃₂ = p¹⁺¹⁺¹*A₄ # [1; 2; 3; 4]
+p²⁺¹⁺¹₃₂ = p¹⁺¹⁺¹*A₄ # [1 4; 2; 3]
 
 p³⁺¹₁₃ = p²⁺¹₁*B₄ + 5p²⁺¹₁₂*A₄ # [1 3 4; 2]     [1 2 3; 4]
 p³⁺¹₂₃ = p²⁺¹₂*B₄ - 5p²⁺¹₂₂*A₄ # [1 2 4; 3]     [1 2 3; 4]
@@ -161,6 +161,8 @@ p⁵⁺¹₁₂ = 4A₆*p⁴⁺¹₁ + p⁴⁺¹₁₂ # [1 3 4 5 6; 2]
 p⁵⁺¹₂₂ = 4A₆*p⁴⁺¹₂ + p⁴⁺¹₂₂ # [1 2 4 5 6; 3]
 p⁵⁺¹₅₂ = G₆ # [1 2 3 4 5; 6]
 
+p²⁺¹⁺¹⁺¹⁺¹₅₂ = p¹⁺¹⁺¹⁺¹⁺¹*A₆ # [1 5; 2; 3; 4]
+
 p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3; 4; 5]
 
 
@@ -238,6 +240,8 @@ p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄, x, [-1,-2,-3,1])
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₂, x, [-1,-2,-3,1])
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₃, x, [-1,-2,-3,1])
+    
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹₃₂, x, [-1,-2,-3,1])
 
     @test contentvectorequals(p¹⁺¹⁺¹⁺¹⁺¹, x, [-1,-2,-3,-4])
 
@@ -251,6 +255,8 @@ p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3
     @test contentvectorequals(p⁵⁺¹₁₂, x, [-1,1,2,3,4])
     @test contentvectorequals(p⁵⁺¹₂₂, x, [1,-1,2,3,4])
     @test contentvectorequals(p⁵⁺¹₅₂, x, [1,2,3,4,-1])
+
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹⁺¹₅₂, x, [-1,-2,-3,-4,1])
 end
 
 
@@ -869,4 +875,29 @@ Q' * (ρ ⊗ ρ).generators[2] *Q
 @test 24p²⁺¹⁺¹₃₃ == -(3transp(p²⁺¹⁺¹₁₃, x, 3) + p²⁺¹⁺¹₁₃)   # [1 3; 2; 4]
 @test 4p³⁺¹₂₃ == -3*(3transp(p³⁺¹₃₃, x, 3) + p³⁺¹₃₃)   # [1 2 4; 3]
 @test 3p³⁺¹₁₃ == -(2transp(p³⁺¹₂₃, x, 2) + p³⁺¹₂₃)   # [1 3 4; 2]
+
+# Now we are stuck with current proofs. Let's try to develop some conjectures,
+# which have been confirmed up to n = 6
+
+# Conjecture 1: A second order orthogonal Specht polynomial for n = 2+1+…+1 with SYT
+# [1 n; 2; 3; …; (n-1)] is given by
+# the Vandermonde det Δⁿ⁻¹ times A_n which is
+#  the first order Specht polynomial for n = (n-1)+1 with SYT [1 2 … n-1; n]
+
+# Proof? Maybe a similar argument of the duality proof works? Here Δⁿ⁻¹ plays the role of
+# swapping signs of permutations. 
+
+@test p²⁺¹⁺¹₃₂ == Δ³ * A₄ == p¹⁺¹⁺¹ * p³⁺¹₃
+
+# we can use the transposition to complete the table:
+@test p²⁺¹⁺¹₁₂ ==  -3*(3transp(p²⁺¹⁺¹₃₂, x, 3) - p²⁺¹⁺¹₃₂)
+@test p²⁺¹⁺¹₂₂ == -(2transp(p²⁺¹⁺¹₁₂, x, 2) - p²⁺¹⁺¹₁₂)
+
+# we can use the duality to give us the missing 3+1:
+@test 48p³⁺¹₃₂ == polydiff(Δ⁴, p²⁺¹⁺¹₃₂)
+# and use the transposition to complete the table:
+
+@test 4p³⁺¹₂₂ == 3*(3transp(p³⁺¹₃₂, x, 3) + p³⁺¹₃₂)   # [1 2 4; 3]
+@test 3p³⁺¹₁₂ == -(2transp(p³⁺¹₂₂, x, 2) + p³⁺¹₂₂)   # [1 3 4; 2]
+
 

@@ -25,6 +25,9 @@ Permutations = "2ae35dd2-176d-5d53-8349-f30d82d94d4f"
 QuasiArrays = "c4ea9172-b204-11e9-377d-29865faadc5c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
+[sources]
+NumericalRepresentationTheory = {path = "/Users/solver/Projects/NumericalRepresentationTheory.jl/"}
+
 [compat]
 ArrayLayouts = "1.11.0"
 BandedMatrices = "1.9.1"
