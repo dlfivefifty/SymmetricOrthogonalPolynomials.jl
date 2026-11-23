@@ -7,6 +7,8 @@ using DynamicPolynomials: Monomial
 gelfand(p, x, m) = sum(subs(p, x[k] => x[m+1], x[m+1] => x[k]) for k=1:m)
 laplacian(p, x, k=1) = sum(differentiate.(p, x, k))
 
+transp(p, x, k) = subs(p, x[k] => x[k+1], x[k+1] => x[k])
+
 function _polydiff(q, x, k)
     isempty(x) && return q
     _polydiff(differentiate(q, x[1], k[1]), x[2:end], k[2:end])
@@ -73,7 +75,7 @@ p²⁺²₁₂ = p²⁺¹₁*C₄ + p²⁺¹₁₂*D₄ # [1 3; 2 4]
 p²⁺²₂₂ = p²⁺¹₂*C₄ - p²⁺¹₂₂*D₄ # [1 2; 3 4]
 p²⁺¹⁺¹₁₂ = p²⁺¹₁*F₄ + E₄*p²⁺¹₁₂ # [1 3; 2; 4]
 p²⁺¹⁺¹₂₂ = p²⁺¹₂*F₄ - E₄*p²⁺¹₂₂ # [1 2 ; 3; 4]
-p²⁺¹⁺¹₃₂ = p¹⁺¹⁺¹*A₄ # [1; 2; 3; 4]
+p²⁺¹⁺¹₃₂ = p¹⁺¹⁺¹*A₄ # [1 4; 2; 3]
 
 p³⁺¹₁₃ = p²⁺¹₁*B₄ + 5p²⁺¹₁₂*A₄ # [1 3 4; 2]     [1 2 3; 4]
 p³⁺¹₂₃ = p²⁺¹₂*B₄ - 5p²⁺¹₂₂*A₄ # [1 2 4; 3]     [1 2 3; 4]
@@ -159,6 +161,8 @@ p⁵⁺¹₁₂ = 4A₆*p⁴⁺¹₁ + p⁴⁺¹₁₂ # [1 3 4 5 6; 2]
 p⁵⁺¹₂₂ = 4A₆*p⁴⁺¹₂ + p⁴⁺¹₂₂ # [1 2 4 5 6; 3]
 p⁵⁺¹₅₂ = G₆ # [1 2 3 4 5; 6]
 
+p²⁺¹⁺¹⁺¹⁺¹₅₂ = p¹⁺¹⁺¹⁺¹⁺¹*A₆ # [1 5; 2; 3; 4]
+
 p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3; 4; 5]
 
 
@@ -236,6 +240,8 @@ p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄, x, [-1,-2,-3,1])
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₂, x, [-1,-2,-3,1])
     @test contentvectorequals(p²⁺¹⁺¹⁺¹₄₃, x, [-1,-2,-3,1])
+    
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹₃₂, x, [-1,-2,-3,1])
 
     @test contentvectorequals(p¹⁺¹⁺¹⁺¹⁺¹, x, [-1,-2,-3,-4])
 
@@ -249,6 +255,8 @@ p¹⁺¹⁺¹⁺¹⁺¹⁺¹ = Δ⁶ = p¹⁺¹⁺¹⁺¹⁺¹ * H₆ # [1; 2; 3
     @test contentvectorequals(p⁵⁺¹₁₂, x, [-1,1,2,3,4])
     @test contentvectorequals(p⁵⁺¹₂₂, x, [1,-1,2,3,4])
     @test contentvectorequals(p⁵⁺¹₅₂, x, [1,2,3,4,-1])
+
+    @test contentvectorequals(p²⁺¹⁺¹⁺¹⁺¹₅₂, x, [-1,-2,-3,-4,1])
 end
 
 
@@ -800,4 +808,96 @@ Q' * (ρ ⊗ ρ).generators[2] *Q
 
 @test p²⁺¹₁₂ ≈ -sqrt(3)𝐩[1]𝐩[2]
 @test p²⁺¹₂₂ ≈ -3/2*(𝐩[1]^2 - 𝐩[2]^2)
+
+
+
+
+########
+# inductive buildup
+########
+
+
+@test p² == 1 # [1 2]
+@test p¹⁺¹ == Δ² == x[2]-x[1] # [1; 2]
+
+
+##
+# n = 2
+##
+
+# add a box in first row doesn't change anything
+@test p³ == p² # [1 2 3]
+@test p²⁺¹₁ == p¹⁺¹ # [1 3; 2]
+
+# We now use the property that (q^λ_k denotes p^λ_k rescaled to induce an orthogonal irrep)
+# (2,3) ∘ q²⁺¹₁ = q²⁺¹₁/r + sqrt(1-1/r^2)q²⁺¹₂
+# i.e. up to a constant scaling
+# p²⁺¹₂ ≅ r * (2,3) ∘ p²⁺¹₁ -  p²⁺¹₁
+
+@test  p²⁺¹₂ == -(2transp(p²⁺¹₁, x, 2) - p²⁺¹₁)
+
+# to build the 2nd order one we use the duality. Can the last equality be derived from this?
+@test 3p²⁺¹₁₂ == polydiff(Δ³, p²⁺¹₂)
+@test  p²⁺¹₂₂ == (2transp(p²⁺¹₁₂, x, 2) - p²⁺¹₁₂)
+
+# finally we know the last one is the Vandermonde matix, which we view as duality:
+@test p¹⁺¹⁺¹ == polydiff(Δ³, p³) # [1; 2; 3]
+##
+# n = 3
+##
+
+# add a box in first row to the (lowest order) polys  doesn't change anything
+@test p⁴ == p³ # [1 2 3 4]
+@test p³⁺¹₁ == p²⁺¹₁ # [1 3 4; 2]
+@test p³⁺¹₂ == p²⁺¹₂ # [1 2 4; 3]
+@test p²⁺¹⁺¹₃ == p¹⁺¹⁺¹ # [1 4; 2; 3]
+
+# We use the permutation property to "fill in the blanks" of the lowest order
+# permute (3,4):
+@test 2p³⁺¹₃ == (3transp(p³⁺¹₂, x, 3) - p³⁺¹₂) # [1 2 3; 4]
+
+# We can similarly permute (3,4) for 2+1+1:
+@test p²⁺¹⁺¹₁ == -3*(3transp(p²⁺¹⁺¹₃, x, 3) - p²⁺¹⁺¹₃) # [1 3; 2; 4]
+# and permute (2,3) for 2+1+1:
+@test p²⁺¹⁺¹₂ == -(2transp(p²⁺¹⁺¹₁, x, 2) - p²⁺¹⁺¹₁) # [1 2; 3; 4]
+
+# we know the sign representation is the Vandermonde det, which we can view as duality
+@test p¹⁺¹⁺¹⁺¹ == polydiff(Δ⁴, p⁴) # [1; 2; 3; 4]
+
+
+
+# we can use the duality to build a higher order one:
+@test p²⁺¹⁺¹₂₃ == 9polydiff(Δ⁴, p³⁺¹₁) # [1 2; 3; 4]
+@test 2p³⁺¹₃₃ == polydiff(Δ⁴, p²⁺¹⁺¹₃) # [1 2 3; 4]
+
+# and fill in the rest with transposition:
+@test 3p²⁺¹⁺¹₁₃ == -(2transp(p²⁺¹⁺¹₂₃, x, 2) + p²⁺¹⁺¹₂₃)   # [1 3; 2; 4]
+@test 24p²⁺¹⁺¹₃₃ == -(3transp(p²⁺¹⁺¹₁₃, x, 3) + p²⁺¹⁺¹₁₃)   # [1 3; 2; 4]
+@test 4p³⁺¹₂₃ == -3*(3transp(p³⁺¹₃₃, x, 3) + p³⁺¹₃₃)   # [1 2 4; 3]
+@test 3p³⁺¹₁₃ == -(2transp(p³⁺¹₂₃, x, 2) + p³⁺¹₂₃)   # [1 3 4; 2]
+
+# Now we are stuck with current proofs. Let's try to develop some conjectures,
+# which have been confirmed up to n = 6
+
+# Conjecture 1: A second order orthogonal Specht polynomial for n = 2+1+…+1 with SYT
+# [1 n; 2; 3; …; (n-1)] is given by
+# the Vandermonde det Δⁿ⁻¹ times A_n which is
+#  the first order Specht polynomial for n = (n-1)+1 with SYT [1 2 … n-1; n]
+
+# Proof? Maybe a similar argument of the duality proof works? Here Δⁿ⁻¹ plays the role of
+# swapping signs of permutations. 
+
+@test p²⁺¹⁺¹₃₂ == Δ³ * A₄ == p¹⁺¹⁺¹ * p³⁺¹₃
+
+# we can use the transposition to complete the table:
+@test p²⁺¹⁺¹₁₂ ==  -3*(3transp(p²⁺¹⁺¹₃₂, x, 3) - p²⁺¹⁺¹₃₂)
+@test p²⁺¹⁺¹₂₂ == -(2transp(p²⁺¹⁺¹₁₂, x, 2) - p²⁺¹⁺¹₁₂)
+
+# we can use the duality to give us the missing 3+1:
+@test 48p³⁺¹₃₂ == polydiff(Δ⁴, p²⁺¹⁺¹₃₂)
+# and use the transposition to complete the table:
+
+@test 4p³⁺¹₂₂ == 3*(3transp(p³⁺¹₃₂, x, 3) + p³⁺¹₃₂)   # [1 2 4; 3]
+@test 3p³⁺¹₁₂ == -(2transp(p³⁺¹₂₂, x, 2) + p³⁺¹₂₂)   # [1 3 4; 2]
+
 
